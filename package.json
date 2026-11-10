@@ -1,0 +1,18 @@
+{
+  "name": "smart-switcher",
+  "version": "1.0.0",
+  "description": "Локальный автопереключатель раскладки EN/RU для Windows",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "build:helper": "node scripts/build-helper.js",
+    "start": "node scripts/build-helper.js && electron .",
+    "selftest": "node scripts/build-helper.js && node scripts/run-helper.js --selftest helper/test",
+    "e2e": "node scripts/build-helper.js && node scripts/run-helper.js --e2e",
+    "package": "node scripts/package.js"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^45.2.3"
+  }
+}

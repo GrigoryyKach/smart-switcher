@@ -1,0 +1,52 @@
+name: Release
+
+# Собирает Windows-сборку и публикует GitHub Release при пуше тега vX.Y.Z.
+# Лаунчер NIMVORO скачивает из релиза архив SmartSwitcher-win-x64.zip (имя задано в nimvoro.json).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Версия совпадает с тегом
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "VERSION=$v" >> $env:GITHUB_ENV
+          if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$v") {
+            throw "Тег ${{ github.ref_name }} не совпадает с версией $v"
+          }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Самопроверка хелпера
+        run: npm run selftest
+
+      - name: Сборка
+        run: npm run package
+
+      - name: Архив
+        shell: pwsh
+        run: Compress-Archive -Path dist/SmartSwitcher-win32-x64/* -DestinationPath SmartSwitcher-win-x64.zip -Force
+
+      - name: Публикация релиза
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ($tag -notmatch '^v') { $tag = "v$env:VERSION" }
+          gh release create $tag "SmartSwitcher-win-x64.zip" --title "Smart Switcher $tag" --generate-notes --verify-tag

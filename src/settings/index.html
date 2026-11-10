@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+  <title>Smart Switcher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Аa</div>
+      <div>
+        <div class="brand-name">Smart Switcher</div>
+        <div class="brand-sub">EN ⇄ RU</div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-item active" data-page="general"><span class="ico">◐</span>Основное</button>
+      <button class="nav-item" data-page="detection"><span class="ico">◎</span>Распознавание</button>
+      <button class="nav-item" data-page="hotkeys"><span class="ico">⌨</span>Горячие клавиши</button>
+      <button class="nav-item" data-page="exceptions"><span class="ico">✕</span>Исключения</button>
+      <button class="nav-item" data-page="apps"><span class="ico">▣</span>Программы</button>
+      <button class="nav-item" data-page="log"><span class="ico">≡</span>Журнал</button>
+      <button class="nav-item" data-page="about"><span class="ico">i</span>О программе</button>
+    </nav>
+
+    <div class="status" id="status">
+      <span class="dot"></span>
+      <span class="status-text">Запуск…</span>
+      <span class="lang-badge" id="langBadge">—</span>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ОСНОВНОЕ -->
+    <section class="page active" id="page-general">
+      <header>
+        <h1>Основное</h1>
+        <p>Программа следит за набором и сама исправляет слова, набранные не в той раскладке: <code>ghbdtn</code> → <code>привет</code>.</p>
+      </header>
+
+      <div class="hero" id="hero">
+        <div>
+          <div class="hero-title" id="heroTitle">Автопереключение включено</div>
+          <div class="hero-sub" id="heroSub">Слова проверяются после пробела или Enter</div>
+        </div>
+        <label class="switch big"><input type="checkbox" data-key="enabled"><span></span></label>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-num" id="statConverted">0</div><div class="stat-label">исправлено автоматически</div></div>
+        <div class="stat"><div class="stat-num" id="statManual">0</div><div class="stat-label">исправлено вручную</div></div>
+        <div class="stat"><div class="stat-num" id="statUndone">0</div><div class="stat-label">отменено</div></div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div><div class="label">Автоматически исправлять раскладку</div><div class="hint">Если выключить, будут работать только горячие клавиши</div></div>
+          <label class="switch"><input type="checkbox" data-key="autoSwitch"><span></span></label>
+        </div>
+        <div class="row">
+          <div><div class="label">Звук при исправлении</div><div class="hint">Тихий щелчок, чтобы вы заметили замену</div></div>
+          <label class="switch"><input type="checkbox" data-key="sound"><span></span></label>
+        </div>
+        <div class="row">
+          <div><div class="label">Запускать вместе с Windows</div><div class="hint">Программа будет стартовать в трее при входе в систему</div></div>
+          <label class="switch"><input type="checkbox" data-key="autostart"><span></span></label>
+        </div>
+      </div>
+
+      <h2>Когда проверять слово</h2>
+      <div class="card">
+        <div class="row">
+          <div><div class="label">Пробел</div></div>
+          <label class="switch"><input type="checkbox" data-key="triggerSpace"><span></span></label>
+        </div>
+        <div class="row">
+          <div><div class="label">Enter</div><div class="hint">Удобно в чатах: последнее слово исправится перед отправкой</div></div>
+          <label class="switch"><input type="checkbox" data-key="triggerEnter"><span></span></label>
+        </div>
+        <div class="row">
+          <div><div class="label">Tab</div><div class="hint">В редакторах кода лучше оставить выключенным</div></div>
+          <label class="switch"><input type="checkbox" data-key="triggerTab"><span></span></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- РАСПОЗНАВАНИЕ -->
+    <section class="page" id="page-detection">
+      <header>
+        <h1>Распознавание</h1>
+        <p>Слово проверяется по встроенным словарям и по тому, насколько его буквосочетания типичны для русского или английского языка.</p>
+      </header>
+
+      <div class="card">
+        <div class="row column">
+          <div class="row-head">
+            <div><div class="label">Чувствительность</div><div class="hint">Чем выше, тем смелее исправляются слова, которых нет в словаре</div></div>
+            <div class="pill" id="sensValue">6</div>
+          </div>
+          <input type="range" min="1" max="10" step="1" data-key="sensitivity" class="slider">
+          <div class="scale"><span>Осторожно</span><span>Сбалансированно</span><span>Агрессивно</span></div>
+        </div>
+        <div class="row">
+          <div><div class="label">Минимальная длина слова</div><div class="hint">Слова короче не исправляются автоматически</div></div>
+          <select data-key="minWordLength" data-type="number">
+            <option value="1">1 буква</option>
+            <option value="2">2 буквы</option>
+            <option value="3">3 буквы</option>
+            <option value="4">4 буквы</option>
+          </select>
+        </div>
+        <div class="row">
+          <div><div class="label">Исправлять предыдущее короткое слово</div><div class="hint">В «yf cnjkt» вместе со вторым словом исправится и предлог: «на столе»</div></div>
+          <label class="switch"><input type="checkbox" data-key="retro"><span></span></label>
+        </div>
+        <div class="row">
+          <div><div class="label">Учиться на отменах</div><div class="hint">Если вы отменили исправление, слово попадёт в исключения</div></div>
+          <label class="switch"><input type="checkbox" data-key="learnOnUndo"><span></span></label>
+        </div>
+      </div>
+
+      <h2>Проверка слова</h2>
+      <div class="card">
+        <div class="tester">
+          <input type="text" id="testInput" placeholder="Введите слово, например ghbdtn или руддщ" spellcheck="false" autocomplete="off">
+          <div class="test-result" id="testResult"><span class="muted">Здесь будет видно, что программа сделает со словом</span></div>
+        </div>
+      </div>
+      <div class="actions"><button class="btn ghost" id="resetConfig">Сбросить настройки распознавания</button></div>
+    </section>
+
+    <!-- ГОРЯЧИЕ КЛАВИШИ -->
+    <section class="page" id="page-hotkeys">
+      <header>
+        <h1>Горячие клавиши</h1>
+        <p>Когда автоматика ошиблась или не сработала, всё можно поправить одной клавишей.</p>
+      </header>
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="label">Исправить или отменить</div>
+            <div class="hint">Если вы набираете слово — переводит его в другую раскладку. Сразу после автоисправления — отменяет его. После пробела — исправляет последнее слово.</div>
+          </div>
+          <select data-key="hotkey">
+            <option value="Pause">Pause / Break</option>
+            <option value="ScrollLock">Scroll Lock</option>
+            <option value="Insert">Insert</option>
+            <option value="F9">F9</option>
+            <option value="F10">F10</option>
+            <option value="DoubleShift">Shift дважды</option>
+            <option value="DoubleCtrl">Ctrl дважды</option>
+            <option value="None">Не использовать</option>
+          </select>
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">Перевести выделенный текст</div>
+            <div class="hint">Выделите фрагмент, например целый абзац, и нажмите клавишу: текст будет перекодирован целиком</div>
+          </div>
+          <select data-key="selectionHotkey">
+            <option value="Shift+Pause">Shift + Pause</option>
+            <option value="Shift+ScrollLock">Shift + Scroll Lock</option>
+            <option value="Shift+F9">Shift + F9</option>
+            <option value="Shift+F10">Shift + F10</option>
+            <option value="DoubleShift">Shift дважды</option>
+            <option value="DoubleCtrl">Ctrl дважды</option>
+            <option value="None">Не использовать</option>
+          </select>
+        </div>
+      </div>
+      <div class="note">На многих ноутбуках нет клавиши Pause. Тогда удобнее выбрать «Shift дважды» или «Ctrl дважды»: быстро нажмите и отпустите клавишу два раза подряд.</div>
+    </section>
+
+    <!-- ИСКЛЮЧЕНИЯ -->
+    <section class="page" id="page-exceptions">
+      <header>
+        <h1>Исключения</h1>
+        <p>Слова, которые никогда не исправляются автоматически. Пишите так, как слово набирается: например <code>ghbdtn</code>, если это ваш ник.</p>
+      </header>
+      <div class="card">
+        <form class="add-row" id="excForm">
+          <input type="text" id="excInput" placeholder="Добавить слово…" spellcheck="false" autocomplete="off">
+          <button class="btn" type="submit">Добавить</button>
+        </form>
+        <div class="chips" id="excList"></div>
+      </div>
+    </section>
+
+    <!-- ПРОГРАММЫ -->
+    <section class="page" id="page-apps">
+      <header>
+        <h1>Программы-исключения</h1>
+        <p>В этих программах автопереключение и горячие клавиши не работают. Подходит для игр, терминалов и менеджеров паролей.</p>
+      </header>
+      <div class="card">
+        <form class="add-row" id="appForm">
+          <input type="text" id="appInput" list="appSuggest" placeholder="Имя процесса, например WindowsTerminal" spellcheck="false" autocomplete="off">
+          <datalist id="appSuggest"></datalist>
+          <button class="btn" type="submit">Добавить</button>
+        </form>
+        <div class="running">
+          <div class="running-head"><span>Открытые сейчас программы</span><button class="link" id="refreshApps">обновить</button></div>
+          <div class="chips selectable" id="runningApps"></div>
+        </div>
+        <div class="chips" id="appList"></div>
+      </div>
+    </section>
+
+    <!-- ЖУРНАЛ -->
+    <section class="page" id="page-log">
+      <header class="with-actions">
+        <div>
+          <h1>Журнал</h1>
+          <p>Последние исправления за этот сеанс. Ничего не сохраняется на диск и никуда не отправляется.</p>
+        </div>
+        <button class="btn ghost" id="clearLog">Очистить</button>
+      </header>
+      <div class="log" id="logList"></div>
+    </section>
+
+    <!-- О ПРОГРАММЕ -->
+    <section class="page" id="page-about">
+      <header>
+        <h1>О программе</h1>
+      </header>
+      <div class="card about">
+        <div class="about-logo">Аa</div>
+        <div>
+          <div class="label">Smart Switcher <span class="muted" id="version"></span></div>
+          <div class="hint">Локальный автопереключатель раскладки. Нажатия обрабатываются в памяти и никуда не передаются. В сеть программа ходит только за проверкой обновлений, и её можно выключить.</div>
+        </div>
+      </div>
+      <h2>Обновления</h2>
+      <div class="card">
+        <div class="row">
+          <div><div class="label">Проверять обновления при запуске</div><div class="hint">Узнавать о новых версиях на GitHub и обновляться через NIMVORO</div></div>
+          <label class="switch"><input type="checkbox" data-key="checkUpdates"><span></span></label>
+        </div>
+        <div class="row">
+          <div><div class="label" id="updateTitle">Установлена последняя версия</div><div class="hint" id="updateHint"></div></div>
+          <div class="update-actions">
+            <button class="btn ghost" id="updateCheck">Проверить</button>
+            <button class="btn" id="updateApply" hidden>Обновить</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><div class="label">Словарь EN / RU</div><div class="muted" id="dictInfo">—</div></div>
+        <div class="row"><div class="label">Раскладки в системе</div><div class="muted" id="layoutInfo">—</div></div>
+      </div>
+      <div class="note">Программа не видит ввод в окнах, запущенных от имени администратора, если сама запущена без этих прав. Это ограничение Windows.</div>
+      <div class="actions"><button class="btn ghost" id="resetStats">Сбросить статистику</button></div>
+    </section>
+  </main>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
