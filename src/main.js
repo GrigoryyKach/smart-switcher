@@ -318,7 +318,28 @@ async function captureAllPages(dir) {
   app.quit();
 }
 
+// Screenshot mode only (SS_CAPTURE_DIR set): the window shows demo status, stats and log.
+// Normal runs never take this path.
+const CAPTURE = !!process.env.SS_CAPTURE_DIR;
+function demoState() {
+  const t = Date.now();
+  const e = (min, kind, from, to, word, app) => ({ time: t - min * 60000, kind, from, to, word, app });
+  return {
+    config: { ...config, stats: { converted: 128, undone: 3, manual: 14 } },
+    status: { running: true, lang: 'en', layouts: { en: true, ru: true }, dict: { en: 1939, ru: 1455 }, error: null },
+    log: [
+      e(1, 'auto', 'ghbdtn', 'привет', 'ghbdtn', 'chrome'),
+      e(3, 'auto', 'rfr ltkf', 'как дела', 'rfr', 'Telegram'),
+      e(6, 'undo', 'руддщ', 'hello', 'руддщ', 'Code'),
+      e(9, 'manual', 'cgfcb,j', 'спасибо', null, 'WINWORD'),
+      e(14, 'selection', 'Ghbdtn, vbh!', 'Привет, мир!', null, 'notepad'),
+      e(21, 'auto', 'yf cnjkt', 'на столе', 'cnjkt', 'chrome'),
+    ],
+  };
+}
+
 function broadcast(msg) {
+  if (CAPTURE && (msg.type === 'status' || msg.type === 'config' || msg.type === 'converted')) return;
   if (settingsWin && !settingsWin.isDestroyed()) settingsWin.webContents.send('event', msg);
 }
 
@@ -343,7 +364,11 @@ function setConfig(patch) {
   return config;
 }
 
-ipcMain.handle('state:get', () => ({ config, status, log, version: app.getVersion(), update: updater.getState() }));
+ipcMain.handle('state:get', () => ({
+  ...(CAPTURE ? demoState() : { config, status, log }),
+  version: app.getVersion(),
+  update: CAPTURE ? { status: 'latest', current: app.getVersion(), version: null, url: null } : updater.getState(),
+}));
 ipcMain.handle('update:check', () => updater.check(onUpdate));
 ipcMain.handle('update:apply', () => {
   if (updater.apply()) { quitting = true; app.quit(); }
