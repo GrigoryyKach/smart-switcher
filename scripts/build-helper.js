@@ -1,4 +1,4 @@
-// Компилирует нативный хелпер встроенным в Windows компилятором C# (.NET Framework 4.x).
+// Compiles the native helper with the C# compiler built into Windows (.NET Framework 4.x).
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +10,7 @@ const csc = [
   path.join(windir, 'Microsoft.NET', 'Framework', 'v4.0.30319', 'csc.exe'),
 ].find(fs.existsSync);
 if (!csc) {
-  console.error('Не найден csc.exe (.NET Framework 4.x)');
+  console.error('csc.exe (.NET Framework 4.x) not found');
   process.exit(1);
 }
 
@@ -21,11 +21,11 @@ const out = path.join(outDir, 'SmartSwitcherHelper.exe');
 const sources = fs.readdirSync(srcDir).filter(f => f.endsWith('.cs')).map(f => path.join(srcDir, f));
 const inputs = [...sources, path.join(dictDir, 'en.txt'), path.join(dictDir, 'ru.txt')];
 
-// Пропускаем сборку, если exe новее всех исходников
+// Skip the build if the exe is newer than all sources
 if (fs.existsSync(out) && !process.argv.includes('--force')) {
   const built = fs.statSync(out).mtimeMs;
   if (inputs.every(f => fs.statSync(f).mtimeMs < built)) {
-    console.log('helper: актуален');
+    console.log('helper: up to date');
     process.exit(0);
   }
 }
@@ -41,8 +41,8 @@ const args = [
 ];
 try {
   execFileSync(csc, args, { stdio: 'inherit' });
-  console.log('helper: собран →', path.relative(root, out));
+  console.log('helper: built ->', path.relative(root, out));
 } catch (e) {
-  console.error('helper: ошибка компиляции');
+  console.error('helper: compilation failed');
   process.exit(1);
 }

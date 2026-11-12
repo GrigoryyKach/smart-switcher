@@ -2,31 +2,31 @@
   "schema": 1,
   "id": "smart-switcher",
   "name": "Smart Switcher",
-  "tagline": "Автопереключатель раскладки EN/RU",
-  "description": "Набрали «ghbdtn» и нажали пробел — получили «привет», а раскладка сама сменилась на русскую. Работает локально: нажатия обрабатываются в памяти и никуда не отправляются.",
+  "tagline": "EN/RU keyboard layout auto-switcher",
+  "description": "Type “ghbdtn” and press space: you get “привет” and the layout switches to Russian by itself. Everything runs locally: keystrokes are processed in memory and never sent anywhere.",
   "features": [
     {
-      "title": "Автоисправление",
-      "text": "После пробела, Enter или Tab слово в неправильной раскладке переводится автоматически."
+      "title": "Auto-correction",
+      "text": "After space, Enter or Tab, a word typed in the wrong layout is converted automatically."
     },
     {
-      "title": "Ручной перевод и отмена",
-      "text": "Pause переводит текущее слово или отменяет исправление, Shift+Pause — выделенный текст."
+      "title": "Manual convert and undo",
+      "text": "Pause converts the current word or undoes a correction; Shift+Pause converts the selected text."
     },
     {
-      "title": "Точный детектор",
-      "text": "Словари плюс триграммная модель; учитывает короткие предлоги вроде «yf cnjkt» → «на столе»."
+      "title": "Accurate detector",
+      "text": "Dictionaries plus a trigram model; handles short prepositions such as “yf cnjkt” → “на столе”."
     },
     {
-      "title": "Исключения",
-      "text": "Слова и программы-исключения: игры, терминалы, менеджеры паролей."
+      "title": "Exceptions",
+      "text": "Exception words and apps: games, terminals, password managers."
     },
     {
-      "title": "Проверка и журнал",
-      "text": "Проверка слова прямо в настройках и журнал исправлений за сеанс."
+      "title": "Check and log",
+      "text": "Check a word right in the settings, and review the session’s correction log."
     }
   ],
-  "category": "Продуктивность",
+  "category": "Productivity",
   "accent": [
     "#4f6bff",
     "#8a5bff"
@@ -41,7 +41,71 @@
   "asset": "SmartSwitcher-win-x64.zip",
   "requirements": [
     "Windows 10/11 x64",
-    "Английская и русская раскладки в системе"
+    "English and Russian keyboard layouts installed"
   ],
-  "settingsDir": "%APPDATA%\\Smart Switcher"
+  "settingsDir": "%APPDATA%\\Smart Switcher",
+  "i18n": {
+    "ru": {
+      "tagline": "Автопереключатель раскладки EN/RU",
+      "description": "Набрали «ghbdtn» и нажали пробел — получили «привет», а раскладка сама сменилась на русскую. Работает локально: нажатия обрабатываются в памяти и никуда не отправляются.",
+      "features": [
+        {
+          "title": "Автоисправление",
+          "text": "После пробела, Enter или Tab слово в неправильной раскладке переводится автоматически."
+        },
+        {
+          "title": "Ручной перевод и отмена",
+          "text": "Pause переводит текущее слово или отменяет исправление, Shift+Pause — выделенный текст."
+        },
+        {
+          "title": "Точный детектор",
+          "text": "Словари плюс триграммная модель; учитывает короткие предлоги вроде «yf cnjkt» → «на столе»."
+        },
+        {
+          "title": "Исключения",
+          "text": "Слова и программы-исключения: игры, терминалы, менеджеры паролей."
+        },
+        {
+          "title": "Проверка и журнал",
+          "text": "Проверка слова прямо в настройках и журнал исправлений за сеанс."
+        }
+      ],
+      "category": "Продуктивность",
+      "requirements": [
+        "Windows 10/11 x64",
+        "Английская и русская раскладки в системе"
+      ]
+    },
+    "uk": {
+      "tagline": "Автоперемикач розкладки EN/RU",
+      "description": "Набрали «ghbdtn» і натиснули пробіл — отримали «привет», а розкладка сама змінилася на російську. Працює локально: натискання обробляються в пам’яті й нікуди не надсилаються.",
+      "features": [
+        {
+          "title": "Автовиправлення",
+          "text": "Після пробілу, Enter або Tab слово в неправильній розкладці перетворюється автоматично."
+        },
+        {
+          "title": "Ручний переклад і скасування",
+          "text": "Pause перетворює поточне слово або скасовує виправлення, Shift+Pause — виділений текст."
+        },
+        {
+          "title": "Точний детектор",
+          "text": "Словники плюс триграмна модель; враховує короткі прийменники на кшталт «yf cnjkt» → «на столе»."
+        },
+        {
+          "title": "Винятки",
+          "text": "Слова та програми-винятки: ігри, термінали, менеджери паролів."
+        },
+        {
+          "title": "Перевірка та журнал",
+          "text": "Перевірка слова просто в налаштуваннях і журнал виправлень за сеанс."
+        }
+      ],
+      "category": "Продуктивність",
+      "requirements": [
+        "Windows 10/11 x64",
+        "Англійська та російська розкладки в системі"
+      ]
+    }
+  }
 }

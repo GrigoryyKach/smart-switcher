@@ -26,7 +26,7 @@ namespace SmartSwitcher
         }
     }
 
-    /// <summary>Связь с Electron: JSON-строки через stdin/stdout.</summary>
+    /// <summary>Link to Electron: JSON lines over stdin/stdout.</summary>
     class Host
     {
         readonly JavaScriptSerializer ser = new JavaScriptSerializer();
@@ -53,7 +53,7 @@ namespace SmartSwitcher
                     }
                 }
                 catch { }
-                // Electron закрылся — выходим, чтобы не оставлять хук
+                // Electron has closed: exit so no hook is left behind
                 try { engine.Ctl.BeginInvoke(new Action(Application.Exit)); } catch { Environment.Exit(0); }
             });
             t.IsBackground = true;
@@ -116,7 +116,7 @@ namespace SmartSwitcher
             var strokes = Layouts.StrokesFor(text, lang);
             r["text"] = text;
             r["lang"] = Layouts.LangName(lang);
-            if (text.Length == 0 || strokes == null) { r["ok"] = false; r["reason"] = "Введите одно слово из букв (без цифр и пробелов)"; return r; }
+            if (text.Length == 0 || strokes == null) { r["ok"] = false; r["reason"] = "enterWord"; return r; }
             var dec = engine.Det.Analyze(strokes, lang);
             r["ok"] = true;
             r["converted"] = Layouts.Text(strokes, 1 - lang);

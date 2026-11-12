@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace SmartSwitcher
 {
-    /// <summary>Описание горячей клавиши: обычная клавиша (с Shift или без) или двойное нажатие модификатора.</summary>
+    /// <summary>Hotkey description: a regular key (with or without Shift) or a double tap of a modifier.</summary>
     public class HotKey
     {
-        public int Vk;          // 0 — не задана
+        public int Vk;          // 0 = not set
         public bool Shift;
-        public int DoubleTap;   // 0x10 (Shift) или 0x11 (Ctrl) для двойного нажатия
+        public int DoubleTap;   // 0x10 (Shift) or 0x11 (Ctrl) for a double tap
 
         public static HotKey Parse(string s)
         {

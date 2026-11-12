@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SmartSwitcher
 {
-    /// <summary>Символьная триграммная модель языка.</summary>
+    /// <summary>Character trigram language model.</summary>
     public class NGramModel
     {
         readonly Dictionary<string, int> tri = new Dictionary<string, int>();
@@ -33,7 +33,7 @@ namespace SmartSwitcher
             }
         }
 
-        /// <summary>Средний логарифм вероятности символа (чем ближе к 0, тем «естественнее» слово).</summary>
+        /// <summary>Average log probability per character (the closer to 0, the more natural the word).</summary>
         public double Score(string w)
         {
             if (w.Length == 0) return -99;
@@ -71,16 +71,16 @@ namespace SmartSwitcher
         readonly NGramModel[] models = { new NGramModel(), new NGramModel() };
         public HashSet<string> Exceptions = new HashSet<string>();
 
-        public double Threshold = 0.67;  // насколько альтернатива должна быть «лучше» (в нормированных баллах)
-        public double Floor = 0.35;      // минимально правдоподобный балл для альтернативы
-        public double GoodLevel = 0.9;   // выше этого слово считается вполне «нормальным»
+        public double Threshold = 0.67;  // how much better the alternative must be (in normalized scores)
+        public double Floor = 0.35;      // minimum plausible score for the alternative
+        public double GoodLevel = 0.9;   // above this a word counts as perfectly "normal"
         public int MinLength = 1;
         public int NgramMinLength = 3;
         public bool UseDict = true;
 
         static readonly string[] singles = { "a i", "а в и к о с у я ж" };
 
-        // Калибровка: средний балл «настоящего» слова и «абракадабры» (слова другого языка в чужой раскладке).
+        // Calibration: average score of a "real" word and of "gibberish" (words of the other language in the wrong layout).
         readonly double[] realMean = new double[2], junkMean = new double[2];
 
         public static Detector LoadEmbedded()
@@ -93,8 +93,8 @@ namespace SmartSwitcher
         }
 
         /// <summary>
-        /// Оцениваем шкалу каждой модели на отложенной выборке: учим временную модель на половине слов,
-        /// меряем средний балл на другой половине (настоящие слова) и на словах другого языка (мусор).
+        /// Estimate each model scale on a held-out sample: train a temporary model on half of the words,
+        /// measure the average score on the other half (real words) and on words of the other language (gibberish).
         /// </summary>
         public void Calibrate()
         {
@@ -121,7 +121,7 @@ namespace SmartSwitcher
             }
         }
 
-        /// <summary>Нормированный балл: 0 — типичная абракадабра, 1 — типичное слово языка.</summary>
+        /// <summary>Normalized score: 0 = typical gibberish, 1 = typical word of the language.</summary>
         public double Norm(int lang, double raw)
         {
             if (raw <= -98) return -9;
@@ -156,19 +156,19 @@ namespace SmartSwitcher
             }
         }
 
-        /// <summary>Чувствительность 1..10 → порог.</summary>
+        /// <summary>Sensitivity 1..10 to threshold.</summary>
         public void SetSensitivity(int s)
         {
             if (s < 1) s = 1; if (s > 10) s = 10;
-            // баллы нормированы: 0 — абракадабра, 1 — обычное слово
-            Threshold = 0.85 - 0.065 * (s - 1); // 1 → 0.85 (осторожно), 5 → 0.59, 10 → 0.27 (агрессивно)
+            // scores are normalized: 0 = gibberish, 1 = ordinary word
+            Threshold = 0.85 - 0.065 * (s - 1); // 1 → 0.85 (cautious), 5 → 0.59, 10 → 0.27 (aggressive)
             Floor = 0.48 - 0.045 * (s - 1);     // 1 → 0.48, 5 → 0.30, 10 → 0.075
         }
 
         public static string Normalize(string s) { return s.ToLowerInvariant().Replace('ё', 'е'); }
         static string Strip(string w) { return w.Replace("-", "").Replace("'", ""); }
 
-        /// <summary>Отрезать знаки препинания по краям и проверить, что середина — буквы нужного алфавита.</summary>
+        /// <summary>Trim punctuation at the edges and check that the middle consists of letters of the right alphabet.</summary>
         public static string Clean(string raw, int lang, out bool valid)
         {
             int st = 0, en = raw.Length;
@@ -205,33 +205,33 @@ namespace SmartSwitcher
             if (d.AltValid) d.AltScore = Norm(alt, ScoreWord(alt, d.Alt));
             int letters = CountLetters(d.Alt);
 
-            if (!d.AltValid) { d.Reason = "в другой раскладке получается не слово"; return d; }
-            if (d.IsException) { d.Reason = "слово в списке исключений"; return d; }
-            if (letters < MinLength) { d.Reason = "слово короче минимальной длины"; return d; }
-            if (d.CurInDict) { d.Reason = "слово есть в словаре текущей раскладки"; return d; }
+            if (!d.AltValid) { d.Reason = "altInvalid"; return d; }
+            if (d.IsException) { d.Reason = "exception"; return d; }
+            if (letters < MinLength) { d.Reason = "tooShort"; return d; }
+            if (d.CurInDict) { d.Reason = "curInDict"; return d; }
             if (d.AltInDict)
             {
                 if (letters >= 5 && d.CurValid && d.CurScore > GoodLevel && d.AltScore < d.CurScore)
-                { d.Reason = "слово выглядит естественно в обеих раскладках"; return d; }
-                d.Convert = true; d.Reason = "слово найдено в словаре другой раскладки"; return d;
+                { d.Reason = "bothNatural"; return d; }
+                d.Convert = true; d.Reason = "altInDict"; return d;
             }
-            if (letters < NgramMinLength) { d.Reason = "слишком короткое слово, а в словаре его нет"; return d; }
+            if (letters < NgramMinLength) { d.Reason = "shortNoDict"; return d; }
             if (!d.CurValid)
             {
-                // знаки препинания посреди «слова» — сильный сигнал, планку для альтернативы снижаем
+                // punctuation in the middle of a "word" is a strong signal, so we lower the bar for the alternative
                 d.Convert = d.AltScore > Floor - 0.5;
-                d.Reason = d.Convert ? "в текущей раскладке получается бессмыслица из знаков" : "ни одна раскладка не даёт похожего слова";
+                d.Reason = d.Convert ? "symbolsNonsense" : "noMatch";
                 return d;
             }
             double diff = d.AltScore - d.CurScore;
             d.Convert = diff > Threshold && d.AltScore > Floor;
-            d.Reason = d.Convert ? "буквосочетания намного типичнее для другого языка"
-                     : d.AltScore <= Floor ? "в другой раскладке слово тоже не похоже на настоящее"
-                     : "разница недостаточна для уверенного переключения";
+            d.Reason = d.Convert ? "ngramOther"
+                     : d.AltScore <= Floor ? "altUnlikely"
+                     : "diffSmall";
             return d;
         }
 
-        /// <summary>Нужно ли исправить предыдущее короткое слово вместе с текущим (только надёжные случаи).</summary>
+        /// <summary>Whether to fix the previous short word together with the current one (reliable cases only).</summary>
         public bool ShouldConvertPrev(IList<Stroke> strokes, int cur)
         {
             var d = Analyze(strokes, cur);

@@ -3,7 +3,26 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 let state = { config: {}, status: {}, log: [] };
 
-// ───── навигация ─────
+// ───── i18n ─────
+const L = () => state.config.language || 'en';
+const tr = (key, ...args) => I18N.t(L(), key, ...args);
+
+function applyI18n() {
+  document.documentElement.lang = L();
+  $$('[data-i18n]').forEach(e => { e.textContent = tr(e.dataset.i18n); });
+  $$('[data-i18n-html]').forEach(e => { e.innerHTML = tr(e.dataset.i18nHtml); });
+  $$('[data-i18n-ph]').forEach(e => { e.placeholder = tr(e.dataset.i18nPh); });
+  for (const sel of ['#excList', '#appList']) $(sel).dataset.empty = tr('listEmpty');
+  $('#runningApps').dataset.empty = tr('pressRefresh');
+  $('#logList').dataset.empty = tr('logEmpty');
+  const sel = $('#langSelect');
+  if (!sel.options.length) for (const l of I18N.LANGS) sel.add(new Option(l.name, l.code));
+  renderLog();
+  renderUpdate(state.update);
+  runTest();
+}
+
+// ───── navigation ─────
 function go(page) {
   $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === page));
   $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
@@ -11,7 +30,7 @@ function go(page) {
 }
 $$('.nav-item').forEach(b => b.addEventListener('click', () => go(b.dataset.page)));
 
-// ───── привязка настроек ─────
+// ───── settings binding ─────
 async function save(patch) {
   state.config = await window.api.setConfig(patch);
   render();
@@ -29,8 +48,11 @@ $$('[data-key]').forEach(el => {
   });
 });
 
+let appliedLang = null;
+
 function render() {
   const c = state.config;
+  if (appliedLang !== L()) { appliedLang = L(); applyI18n(); }
   $$('[data-key]').forEach(el => {
     const v = c[el.dataset.key];
     if (v === undefined) return;
@@ -40,15 +62,15 @@ function render() {
   $('#sensValue').textContent = c.sensitivity;
 
   $('#hero').classList.toggle('off', !c.enabled);
-  $('#heroTitle').textContent = c.enabled ? 'Автопереключение включено' : 'Автопереключение на паузе';
-  const triggers = [c.triggerSpace && 'пробела', c.triggerEnter && 'Enter', c.triggerTab && 'Tab'].filter(Boolean);
+  $('#heroTitle').textContent = tr(c.enabled ? 'heroOn' : 'heroOff');
+  const triggers = [c.triggerSpace && tr('trigSpace'), c.triggerEnter && 'Enter', c.triggerTab && 'Tab'].filter(Boolean);
   $('#heroSub').textContent = !c.enabled
-    ? 'Нажатия не отслеживаются'
+    ? tr('heroSubOff')
     : !c.autoSwitch
-      ? 'Работают только горячие клавиши'
+      ? tr('heroSubHotkeys')
       : triggers.length
-        ? 'Слова проверяются после ' + (triggers.length > 1 ? triggers.slice(0, -1).join(', ') + ' и ' + triggers.at(-1) : triggers[0])
-        : 'Не выбрано, когда проверять слова';
+        ? tr('heroSubAfter', triggers.length > 1 ? triggers.slice(0, -1).join(', ') + ' ' + tr('and') + ' ' + triggers.at(-1) : triggers[0])
+        : tr('heroSubNone');
 
   const s = c.stats || {};
   $('#statConverted').textContent = s.converted || 0;
@@ -69,7 +91,7 @@ function renderChips(sel, items, onRemove, fmt = x => x) {
     chip.className = 'chip';
     chip.textContent = fmt(it);
     const x = document.createElement('button');
-    x.title = 'Удалить';
+    x.title = tr('remove');
     x.textContent = '✕';
     x.onclick = () => onRemove(it);
     chip.appendChild(x);
@@ -83,25 +105,25 @@ function renderStatus() {
   const el = $('#status');
   el.className = 'status';
   let text;
-  if (st.error) { el.classList.add('bad'); text = st.error; }
-  else if (!st.running) { el.classList.add('bad'); text = 'Хелпер не запущен'; }
-  else if (st.layouts && (!st.layouts.en || !st.layouts.ru)) { el.classList.add('bad'); text = 'Нужны раскладки EN и RU'; }
-  else if (!c.enabled) { el.classList.add('paused'); text = 'На паузе'; }
-  else { el.classList.add('ok'); text = 'Работает'; }
+  if (st.error) { el.classList.add('bad'); text = tr(st.error); }
+  else if (!st.running) { el.classList.add('bad'); text = tr('errHelperDown'); }
+  else if (st.layouts && (!st.layouts.en || !st.layouts.ru)) { el.classList.add('bad'); text = tr('errNeedLayouts'); }
+  else if (!c.enabled) { el.classList.add('paused'); text = tr('statusPaused'); }
+  else { el.classList.add('ok'); text = tr('statusOk'); }
   el.querySelector('.status-text').textContent = text;
 
   const badge = $('#langBadge');
   badge.className = 'lang-badge ' + (st.lang || '');
   badge.textContent = st.lang === 'en' ? 'EN' : st.lang === 'ru' ? 'RU' : '—';
 
-  if (st.dict) $('#dictInfo').textContent = `${st.dict.en} / ${st.dict.ru} слов`;
+  if (st.dict) $('#dictInfo').textContent = tr('dictWords', st.dict.en, st.dict.ru);
   if (st.layouts) {
-    const yes = v => (v ? 'есть' : 'нет');
-    $('#layoutInfo').textContent = `английская — ${yes(st.layouts.en)}, русская — ${yes(st.layouts.ru)}`;
+    const yes = v => tr(v ? 'yes' : 'no');
+    $('#layoutInfo').textContent = tr('layoutsInfo', yes(st.layouts.en), yes(st.layouts.ru));
   }
 }
 
-// ───── исключения ─────
+// ───── exceptions ─────
 $('#excForm').addEventListener('submit', e => {
   e.preventDefault();
   const words = $('#excInput').value.split(/[\s,;]+/).map(w => w.trim().toLowerCase()).filter(Boolean);
@@ -110,7 +132,7 @@ $('#excForm').addEventListener('submit', e => {
   $('#excInput').value = '';
 });
 
-// ───── программы ─────
+// ───── apps ─────
 function addApp(name) {
   name = name.trim().replace(/\.exe$/i, '');
   if (!name) return;
@@ -132,7 +154,7 @@ async function loadRunningApps() {
     chip.className = 'chip';
     chip.dataset.app = name;
     chip.textContent = '+ ' + name;
-    chip.title = 'Добавить в исключения';
+    chip.title = tr('addToExcluded');
     chip.onclick = () => addApp(name);
     box.appendChild(chip);
     const opt = document.createElement('option');
@@ -147,7 +169,7 @@ function markRunningApps() {
 }
 $('#refreshApps').addEventListener('click', loadRunningApps);
 
-// ───── проверка слова ─────
+// ───── word check ─────
 let testTimer;
 $('#testInput').addEventListener('input', () => {
   clearTimeout(testTimer);
@@ -158,22 +180,22 @@ async function runTest() {
   const text = $('#testInput').value.trim();
   const out = $('#testResult');
   if (!text) {
-    out.innerHTML = '<span class="muted">Здесь будет видно, что программа сделает со словом</span>';
+    out.replaceChildren(el('span', 'muted', tr('testIdle')));
     return;
   }
   const r = await window.api.analyze(text);
-  if (!r) { out.innerHTML = '<span class="muted">Хелпер не отвечает</span>'; return; }
+  if (!r) { out.replaceChildren(el('span', 'muted', tr('testNoHelper'))); return; }
   out.innerHTML = '';
-  if (!r.ok) { out.appendChild(el('span', 'muted', r.reason)); return; }
+  if (!r.ok) { out.appendChild(el('span', 'muted', tr('r_' + r.reason))); return; }
 
   const words = el('div', 'test-words');
   words.append(el('span', '', r.text), el('span', 'arrow', r.convert ? '→' : '·'), el('span', r.convert ? '' : 'muted', r.converted));
-  out.append(words, el('span', 'verdict ' + (r.convert ? 'yes' : 'no'), r.convert ? 'исправит' : 'оставит как есть'));
+  out.append(words, el('span', 'verdict ' + (r.convert ? 'yes' : 'no'), tr(r.convert ? 'willFix' : 'willKeep')));
   const curLang = r.lang === 'en' ? 'EN' : 'RU', altLang = r.lang === 'en' ? 'RU' : 'EN';
   const fmt = v => (v < -5 ? '—' : v.toFixed(2));
+  const dict = inDict => (inDict ? tr('inDict') : '');
   out.appendChild(el('div', 'test-reason',
-    `${capital(r.reason)}. Похожесть на слово: ${curLang} ${fmt(r.curScore)}${r.curInDict ? ' (в словаре)' : ''}, ` +
-    `${altLang} ${fmt(r.altScore)}${r.altInDict ? ' (в словаре)' : ''}.`));
+    tr('similarity', capital(tr('r_' + r.reason)), curLang, fmt(r.curScore), dict(r.curInDict), altLang, fmt(r.altScore), dict(r.altInDict))));
 }
 
 function el(tag, cls, text) {
@@ -184,8 +206,7 @@ function el(tag, cls, text) {
 }
 const capital = s => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
-// ───── журнал ─────
-const KIND = { auto: 'авто', manual: 'вручную', undo: 'отмена', selection: 'выделение' };
+// ───── log ─────
 
 function renderLog() {
   const box = $('#logList');
@@ -198,20 +219,20 @@ function logItem(e) {
   const words = el('div', 'log-words');
   words.append(el('span', 'from', short(e.from)), el('span', 'muted', '→'), el('span', '', short(e.to)));
   const meta = el('div', 'log-meta');
-  meta.append(el('span', 'tag ' + e.kind, KIND[e.kind] || e.kind));
+  meta.append(el('span', 'tag ' + e.kind, tr('kind_' + e.kind)));
   if (e.app) meta.append(el('span', '', e.app));
-  meta.append(el('span', '', new Date(e.time).toLocaleTimeString('ru-RU')));
-  if (e.learned) meta.append(el('span', '', `«${e.learned}» добавлено в исключения`));
+  meta.append(el('span', '', new Date(e.time).toLocaleTimeString(L())));
+  if (e.learned) meta.append(el('span', '', tr('learnedMsg', e.learned)));
   item.append(words);
   if (e.kind === 'auto' && e.word) {
-    const btn = el('button', 'link', 'не исправлять');
-    btn.title = 'Добавить в исключения';
+    const btn = el('button', 'link', tr('dontFix'));
+    btn.title = tr('addToExcluded');
     btn.onclick = () => {
       save({ exceptions: [...(state.config.exceptions || []), e.word] });
-      btn.textContent = 'добавлено';
+      btn.textContent = tr('added');
       btn.disabled = true;
     };
-    if ((state.config.exceptions || []).includes(e.word)) { btn.textContent = 'в исключениях'; btn.disabled = true; }
+    if ((state.config.exceptions || []).includes(e.word)) { btn.textContent = tr('inExceptions'); btn.disabled = true; }
     item.append(btn);
   }
   item.append(meta);
@@ -224,7 +245,7 @@ $('#clearLog').addEventListener('click', async () => {
   renderLog();
 });
 
-// ───── прочее ─────
+// ───── misc ─────
 $('#resetStats').addEventListener('click', async () => {
   state.config = await window.api.resetStats();
   render();
@@ -236,16 +257,17 @@ $('#resetConfig').addEventListener('click', async () => {
 });
 
 function renderUpdate(u) {
+  state.update = u;
   if (!u) return;
   const title = {
-    idle: `Установлена версия ${u.current}`,
-    checking: 'Проверяем обновления…',
-    latest: `Версия ${u.current} — последняя`,
-    available: `Доступна версия ${u.version}`,
-    failed: 'Не удалось проверить обновления',
+    idle: tr('upIdle', u.current),
+    checking: tr('upChecking'),
+    latest: tr('upLatest', u.current),
+    available: tr('upAvailable', u.version),
+    failed: tr('upFailed'),
   }[u.status] || '';
   $('#updateTitle').textContent = title;
-  $('#updateHint').textContent = u.status === 'available' ? `У вас ${u.current}. Обновление скачает и установит NIMVORO.` : '';
+  $('#updateHint').textContent = u.status === 'available' ? tr('upAvailableHint', u.current) : '';
   $('#updateApply').hidden = u.status !== 'available';
   $('#updateCheck').disabled = u.status === 'checking';
 }

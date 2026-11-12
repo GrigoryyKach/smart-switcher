@@ -1,4 +1,6 @@
-// Иконки рисуются canvas'ом в скрытом окне — без файлов-картинок и сторонних библиотек.
+// Tray state icons (layout indicators) are drawn on a canvas in a hidden window.
+// The application icon itself comes from assets/icon.png.
+const path = require('path');
 const { BrowserWindow, nativeImage } = require('electron');
 
 function draw() {
@@ -48,25 +50,6 @@ function draw() {
       }
     }
   }
-  // иконка приложения
-  out.app = {};
-  for (const s of [32, 64, 256]) {
-    const c = document.createElement('canvas');
-    c.width = c.height = s;
-    const g = c.getContext('2d');
-    const grad = g.createLinearGradient(0, 0, s, s);
-    grad.addColorStop(0, '#5b8cff');
-    grad.addColorStop(1, '#8a5bff');
-    g.fillStyle = grad;
-    rr(g, 0, 0, s, s, s * 0.22);
-    g.fill();
-    g.fillStyle = '#fff';
-    g.font = `800 ${Math.round(s * 0.42)}px "Segoe UI", Arial, sans-serif`;
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    g.fillText('Аa', s / 2, s / 2 + s * 0.03);
-    out.app[s] = c.toDataURL('image/png');
-  }
   return out;
 }
 
@@ -78,13 +61,14 @@ async function renderIcons() {
 
   const icons = {};
   for (const [name, sizes] of Object.entries(data)) {
-    const base = name === 'app' ? 32 : 16;
+    const base = 16;
     const img = nativeImage.createEmpty();
     for (const [size, url] of Object.entries(sizes)) {
       img.addRepresentation({ scaleFactor: Number(size) / base, dataURL: url });
     }
     icons[name] = img;
   }
+  icons.app = nativeImage.createFromPath(path.join(__dirname, '..', 'assets', 'icon.png'));
   return icons;
 }
 

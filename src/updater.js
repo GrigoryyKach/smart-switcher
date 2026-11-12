@@ -1,5 +1,5 @@
-// NIMVORO: проверка обновлений через GitHub Releases и передача обновления лаунчеру.
-// Контракт описан в nimvoro/docs/ADDING_A_TOOL.md.
+// NIMVORO: update check through GitHub Releases and hand-off of the update to the launcher.
+// The contract is described in nimvoro/docs/ADDING_A_TOOL.md.
 const { app, net, shell } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -58,14 +58,14 @@ function launcherPath() {
   }
 }
 
-/** true — обновление передано лаунчеру, приложению пора выйти. */
+/** True if the update was handed to the launcher and the app should quit. */
 function apply() {
   const exe = launcherPath();
   if (exe) {
     try {
       spawn(exe, ['--update', ID], { detached: true, stdio: 'ignore' }).unref();
       return true;
-    } catch { /* откроем страницу релиза */ }
+    } catch { /* open the release page instead */ }
   }
   shell.openExternal(state.url || `https://github.com/${REPO}/releases/latest`);
   return false;

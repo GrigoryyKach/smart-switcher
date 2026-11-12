@@ -15,13 +15,13 @@ namespace SmartSwitcher
     }
 
     /// <summary>
-    /// Глобальный перехват клавиатуры: копит текущее слово, на пробел/Enter решает, верна ли раскладка,
-    /// и при необходимости стирает слово, переключает раскладку и печатает исправленный вариант.
+    /// Global keyboard hook: collects the current word, decides on space/Enter whether the layout is right,
+    /// and if needed erases the word, switches the layout and types the corrected version.
     /// </summary>
     class Engine
     {
-        public static readonly IntPtr TAG = new IntPtr(0x53535731);    // наши собственные нажатия — игнорируем
-        public static readonly IntPtr REPLAY = new IntPtr(0x53535732); // повтор нажатий, отложенных на время замены
+        public static readonly IntPtr TAG = new IntPtr(0x53535731);    // our own key presses: ignored
+        public static readonly IntPtr REPLAY = new IntPtr(0x53535732); // replay of key presses deferred during a replacement
 
         const int VK_BACK = 0x08, VK_TAB = 0x09, VK_RETURN = 0x0D, VK_SHIFT = 0x10, VK_CONTROL = 0x11, VK_MENU = 0x12,
                   VK_CAPITAL = 0x14, VK_SPACE = 0x20, VK_LWIN = 0x5B, VK_RWIN = 0x5C, VK_C = 0x43, VK_V = 0x56,
@@ -44,7 +44,7 @@ namespace SmartSwitcher
         IntPtr lastFg = IntPtr.Zero; bool fgExcluded; string fgProcess = "";
         readonly Dictionary<uint, string> procCache = new Dictionary<uint, string>();
 
-        // двойное нажатие модификатора
+        // double tap of a modifier
         int tapVk, lastTapVk; bool tapClean; int tapDownTime, lastTapTime;
 
         readonly SoundPlayer click;
@@ -56,7 +56,7 @@ namespace SmartSwitcher
             Det = det;
             Ctl = new Control();
             Ctl.CreateControl();
-            var h = Ctl.Handle; // гарантируем создание окна для BeginInvoke
+            var h = Ctl.Handle; // make sure the window exists for BeginInvoke
             click = new SoundPlayer(Sound.MakeClick());
             try { click.Load(); } catch { }
             layoutTimer = new Timer { Interval = 250 };
@@ -69,7 +69,7 @@ namespace SmartSwitcher
             Det.SetSensitivity(Cfg.Sensitivity);
             Det.MinLength = Math.Max(1, Cfg.MinWordLength);
             Det.Exceptions = Cfg.Exceptions;
-            lastFg = IntPtr.Zero; // пересчитать исключённые программы
+            lastFg = IntPtr.Zero; // recompute excluded apps
             ResetAll();
         }
 
@@ -91,7 +91,7 @@ namespace SmartSwitcher
             kbHook = msHook = IntPtr.Zero;
         }
 
-        // ───────────────────────── хуки ─────────────────────────
+        // ───────────────────────── hooks ─────────────────────────
 
         IntPtr KbProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
@@ -105,7 +105,7 @@ namespace SmartSwitcher
 
             if (busy)
             {
-                // Идёт замена слова: откладываем нажатие и повторим его сразу после.
+                // A replacement is in progress: defer the key press and replay it right after.
                 var i = Native.Key((int)k.vkCode, up, REPLAY);
                 i.u.ki.wScan = (ushort)k.scanCode;
                 if ((k.flags & Native.LLKHF_EXTENDED) != 0) i.u.ki.dwFlags |= Native.KEYEVENTF_EXTENDEDKEY;
@@ -166,7 +166,7 @@ namespace SmartSwitcher
             }
             if (fgExcluded) return false;
 
-            // двойное нажатие Shift/Ctrl
+            // double tap of Shift/Ctrl
             int norm = IsShiftKey(vk) ? VK_SHIFT : IsCtrlKey(vk) ? VK_CONTROL : 0;
             if (norm != 0)
             {
@@ -258,7 +258,7 @@ namespace SmartSwitcher
                         erase += prev.Count + 1;
                     }
                     Schedule(c, erase);
-                    return true; // пробел/Enter пока придерживаем, напечатаем после слова
+                    return true; // hold space/Enter for now, type it after the word
                 }
             }
 
@@ -267,7 +267,7 @@ namespace SmartSwitcher
             return false;
         }
 
-        // ───────────────────────── преобразования ─────────────────────────
+        // ───────────────────────── conversions ─────────────────────────
 
         void Schedule(Conv c, int erase)
         {
@@ -301,7 +301,7 @@ namespace SmartSwitcher
             }
         }
 
-        /// <summary>Горячая клавиша: исправить набираемое слово, отменить последнее исправление или исправить последнее слово.</summary>
+        /// <summary>Hotkey: fix the word being typed, undo the last correction, or fix the last word.</summary>
         void ManualConvert()
         {
             IntPtr fg = Native.GetForegroundWindow();
@@ -339,7 +339,7 @@ namespace SmartSwitcher
             }
         }
 
-        /// <summary>Перекодировать выделенный текст через буфер обмена.</summary>
+        /// <summary>Re-encode the selected text through the clipboard.</summary>
         void ConvertSelection()
         {
             ResetAll();
@@ -399,7 +399,7 @@ namespace SmartSwitcher
             t.Start();
         }
 
-        // ───────────────────────── раскладка и окна ─────────────────────────
+        // ───────────────────────── layout and windows ─────────────────────────
 
         public static int LangOf(IntPtr hwnd)
         {
@@ -461,7 +461,7 @@ namespace SmartSwitcher
 
     static class Sound
     {
-        /// <summary>Короткий мягкий «щелчок» в формате WAV.</summary>
+        /// <summary>A short soft click in WAV format.</summary>
         public static Stream MakeClick()
         {
             const int rate = 22050;

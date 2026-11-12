@@ -10,7 +10,7 @@ namespace SmartSwitcher
         public Stroke(int vk, bool shift, bool caps) { Vk = vk; Shift = shift; Caps = caps; }
     }
 
-    /// <summary>Таблицы соответствия клавиш для US-QWERTY и русской ЙЦУКЕН.</summary>
+    /// <summary>Key mapping tables for US QWERTY and Russian JCUKEN.</summary>
     public static class Layouts
     {
         public const int EN = 0, RU = 1;
@@ -59,7 +59,7 @@ namespace SmartSwitcher
             return sb.ToString();
         }
 
-        /// <summary>Перевести текст в штрихи клавиш, как если бы он набирался в раскладке lang. null — если есть неподдерживаемые символы.</summary>
+        /// <summary>Convert text to key strokes as if it were typed in layout lang. Null if there are unsupported characters.</summary>
         public static List<Stroke> StrokesFor(string text, int lang)
         {
             var list = new List<Stroke>();
@@ -82,7 +82,7 @@ namespace SmartSwitcher
             return cyr > lat ? RU : EN;
         }
 
-        /// <summary>Перекодировать текст, набранный в раскладке from, в раскладку to.</summary>
+        /// <summary>Re-encode text typed in layout from into layout to.</summary>
         public static string ConvertText(string text, int from, int to)
         {
             var sb = new StringBuilder(text.Length);

@@ -5,6 +5,7 @@ const { spawn } = require('child_process');
 const readline = require('readline');
 const { renderIcons } = require('./icons');
 const updater = require('./updater');
+const I18N = require('./i18n');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -15,7 +16,7 @@ const APP_NAME = 'Smart Switcher';
 app.setName(APP_NAME);
 app.setAppUserModelId('local.smart-switcher');
 
-// ───────────────────────── конфигурация ─────────────────────────
+// ───────────────────────── configuration ─────────────────────────
 
 const DEFAULTS = {
   enabled: true,
@@ -30,6 +31,8 @@ const DEFAULTS = {
   minWordLength: 1,
   retro: true,
   learnOnUndo: true,
+  language: null, // resolved on first start: config -> .nimvoro.json next to the exe -> 'en'
+  theme: 'system', // system | light | dark
   hotkey: 'Pause',
   selectionHotkey: 'Shift+Pause',
   exceptions: [],
@@ -48,7 +51,22 @@ function loadConfig() {
   } catch {
     config = { ...DEFAULTS };
   }
+  if (!I18N.isLang(config.language)) config.language = markerLanguage();
+  if (!['system', 'light', 'dark'].includes(config.theme)) config.theme = 'system';
+  nativeTheme.themeSource = config.theme;
 }
+
+// NIMVORO install marker: <exe dir>\.nimvoro.json holds the launcher language at install time.
+function markerLanguage() {
+  try {
+    const marker = path.join(path.dirname(process.execPath), '.nimvoro.json');
+    const lang = JSON.parse(fs.readFileSync(marker, 'utf8').replace(/^\uFEFF/, '')).language;
+    if (I18N.isLang(lang)) return lang;
+  } catch { /* no marker */ }
+  return 'en';
+}
+
+const tr = (key, ...args) => I18N.t(config.language, key, ...args);
 
 function saveConfig() {
   clearTimeout(saveTimer);
@@ -71,7 +89,7 @@ function applyAutostart() {
   try { app.setLoginItemSettings(opts); } catch (e) { console.error(e); }
 }
 
-// ───────────────────────── нативный хелпер ─────────────────────────
+// ───────────────────────── native helper ─────────────────────────
 
 const helperPath = app.isPackaged
   ? path.join(process.resourcesPath, 'helper', 'SmartSwitcherHelper.exe')
@@ -94,7 +112,7 @@ const log = [];
 
 function startHelper() {
   if (!fs.existsSync(helperPath)) {
-    status.error = 'Не найден SmartSwitcherHelper.exe — выполните npm run build:helper';
+    status.error = 'errHelperMissing'; // translation key, resolved in the window
     broadcast({ type: 'status', status });
     return;
   }
@@ -110,7 +128,7 @@ function startHelper() {
     broadcast({ type: 'status', status });
     if (quitting) return;
     if (code === 2) {
-      status.error = 'Уже запущен другой экземпляр хелпера';
+      status.error = 'errHelperDuplicate';
       return;
     }
     restarts++;
@@ -136,7 +154,7 @@ function request(type, payload = {}) {
 }
 
 function sendConfig() {
-  const { stats, autostart, learnOnUndo, checkUpdates, ...forHelper } = config;
+  const { stats, autostart, learnOnUndo, checkUpdates, language, theme, ...forHelper } = config;
   send({ type: 'config', ...forHelper });
 }
 
@@ -200,7 +218,7 @@ function onConverted(msg) {
   broadcast({ type: 'converted', entry, config });
 }
 
-// ───────────────────────── трей ─────────────────────────
+// ───────────────────────── tray ─────────────────────────
 
 let tray = null;
 let icons = null;
@@ -213,36 +231,36 @@ function trayImage() {
 function updateTray() {
   if (!tray) return;
   tray.setImage(trayImage());
-  const langName = { en: 'English', ru: 'Русский' }[status.lang] || 'другая раскладка';
-  const state = !status.running ? 'хелпер не запущен' : config.enabled ? 'включено' : 'на паузе';
+  const langName = { en: 'English', ru: 'Русский' }[status.lang] || tr('trayOther');
+  const state = !status.running ? tr('trayHelperDown') : config.enabled ? tr('trayOn') : tr('trayPaused');
   tray.setToolTip(`${APP_NAME} — ${langName}, ${state}`);
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: APP_NAME, enabled: false },
     { type: 'separator' },
     {
-      label: 'Автопереключение',
+      label: tr('trayAuto'),
       type: 'checkbox',
       checked: config.enabled,
       click: item => setConfig({ enabled: item.checked }),
     },
     {
-      label: 'Звук',
+      label: tr('traySound'),
       type: 'checkbox',
       checked: config.sound,
       click: item => setConfig({ sound: item.checked }),
     },
     { type: 'separator' },
-    { label: 'Настройки…', click: () => openSettings() },
-    { label: 'Журнал исправлений', click: () => openSettings('log') },
+    { label: tr('traySettings'), click: () => openSettings() },
+    { label: tr('trayLog'), click: () => openSettings('log') },
     ...(updater.getState().status === 'available'
-      ? [{ label: `Обновить до версии ${updater.getState().version}`, click: () => { if (updater.apply()) { quitting = true; app.quit(); } } }]
+      ? [{ label: tr('trayUpdate', updater.getState().version), click: () => { if (updater.apply()) { quitting = true; app.quit(); } } }]
       : []),
     { type: 'separator' },
-    { label: 'Выход', click: () => { quitting = true; app.quit(); } },
+    { label: tr('trayQuit'), click: () => { quitting = true; app.quit(); } },
   ]));
 }
 
-// ───────────────────────── окно настроек ─────────────────────────
+// ───────────────────────── settings window ─────────────────────────
 
 let settingsWin = null;
 
@@ -262,6 +280,7 @@ function openSettings(page) {
     show: false,
     title: APP_NAME,
     icon: icons && icons.app,
+    title: tr('appName'),
     autoHideMenuBar: true,
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#14161b' : '#f4f5f8',
     webPreferences: {
@@ -280,7 +299,7 @@ function openSettings(page) {
   settingsWin.on('closed', () => { settingsWin = null; });
 }
 
-// Для разработки: SS_CAPTURE_DIR=<папка> — снять скриншоты всех страниц настроек и выйти.
+// Development only: SS_CAPTURE_DIR=<folder> takes screenshots of every settings page and quits.
 async function captureAllPages(dir) {
   const wait = ms => new Promise(r => setTimeout(r, ms));
   fs.mkdirSync(dir, { recursive: true });
@@ -313,6 +332,10 @@ function setConfig(patch) {
     config.excludedApps = [...new Set(config.excludedApps.map(a => String(a).trim().replace(/\.exe$/i, '')).filter(Boolean))];
   }
   if ('autostart' in patch) applyAutostart();
+  if (!I18N.isLang(config.language)) config.language = 'en';
+  if (!['system', 'light', 'dark'].includes(config.theme)) config.theme = 'system';
+  nativeTheme.themeSource = config.theme;
+  if (settingsWin && 'language' in patch) settingsWin.setTitle(tr('appName'));
   saveConfig();
   sendConfig();
   updateTray();
@@ -327,8 +350,8 @@ ipcMain.handle('update:apply', () => {
 });
 ipcMain.handle('config:set', (_e, patch) => setConfig(patch || {}));
 ipcMain.handle('config:reset', () => {
-  const { stats, exceptions, excludedApps } = config;
-  config = { ...DEFAULTS, stats, exceptions, excludedApps };
+  const { stats, exceptions, excludedApps, language, theme } = config;
+  config = { ...DEFAULTS, stats, exceptions, excludedApps, language, theme };
   applyAutostart();
   saveConfig();
   sendConfig();
@@ -347,20 +370,20 @@ ipcMain.handle('apps:list', async () => {
 });
 ipcMain.handle('analyze', async (_e, text) => request('analyze', { text: String(text || '') }));
 
-// ───────────────────────── обновления (NIMVORO) ─────────────────────────
+// ───────────────────────── updates (NIMVORO) ─────────────────────────
 
 function onUpdate(u) {
   broadcast({ type: 'update', update: u });
   if (u.status === 'available') {
     updateTray();
-    if (tray) tray.displayBalloon?.({ title: 'Smart Switcher', content: `Доступна версия ${u.version}. Откройте настройки → О программе.` });
+    if (tray) tray.displayBalloon?.({ title: 'Smart Switcher', content: tr('balloonUpdate', u.version) });
   }
 }
 
-// ───────────────────────── жизненный цикл ─────────────────────────
+// ───────────────────────── lifecycle ─────────────────────────
 
 app.on('second-instance', () => openSettings());
-app.on('window-all-closed', () => { /* живём в трее */ });
+app.on('window-all-closed', () => { /* we live in the tray */ });
 app.on('before-quit', () => {
   quitting = true;
   send({ type: 'quit' });
@@ -375,8 +398,7 @@ app.whenReady().then(async () => {
   updateTray();
   startHelper();
   if (config.checkUpdates) updater.check(onUpdate);
-  if (!fs.existsSync(configPath()) || process.env.SS_CAPTURE_DIR) {
-    saveConfig();
-    openSettings(); // первый запуск — показать настройки
-  }
+  const firstRun = !fs.existsSync(configPath());
+  saveConfig(); // persists the resolved language and theme
+  if (firstRun || process.env.SS_CAPTURE_DIR) openSettings(); // first run: show the settings
 });

@@ -1,7 +1,7 @@
 name: Release
 
-# Собирает Windows-сборку и публикует GitHub Release при пуше тега vX.Y.Z.
-# Лаунчер NIMVORO скачивает из релиза архив SmartSwitcher-win-x64.zip (имя задано в nimvoro.json).
+# Builds the Windows package and publishes a GitHub Release when a vX.Y.Z tag is pushed.
+# The NIMVORO launcher downloads SmartSwitcher-win-x64.zip from the release (name set in nimvoro.json).
 on:
   push:
     tags: ["v*"]
@@ -16,13 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Версия совпадает с тегом
+      - name: Version matches the tag
         shell: pwsh
         run: |
           $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
           "VERSION=$v" >> $env:GITHUB_ENV
           if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$v") {
-            throw "Тег ${{ github.ref_name }} не совпадает с версией $v"
+            throw "Tag ${{ github.ref_name }} does not match version $v"
           }
 
       - uses: actions/setup-node@v4
@@ -32,17 +32,17 @@ jobs:
 
       - run: npm ci
 
-      - name: Самопроверка хелпера
+      - name: Helper self-test
         run: npm run selftest
 
-      - name: Сборка
+      - name: Build
         run: npm run package
 
-      - name: Архив
+      - name: Archive
         shell: pwsh
         run: Compress-Archive -Path dist/SmartSwitcher-win32-x64/* -DestinationPath SmartSwitcher-win-x64.zip -Force
 
-      - name: Публикация релиза
+      - name: Publish release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}

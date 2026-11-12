@@ -54,7 +54,7 @@ code {
   border-radius: 6px;
 }
 
-/* ───── боковая панель ───── */
+/* ───── sidebar ───── */
 .sidebar {
   width: 236px;
   flex-shrink: 0;
@@ -69,10 +69,8 @@ code {
 .logo, .about-logo {
   width: 40px; height: 40px;
   border-radius: 11px;
-  display: grid; place-items: center;
-  font-weight: 800; font-size: 17px; color: #fff;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 4px 14px rgba(111, 107, 255, 0.35);
+  object-fit: contain;
+  box-shadow: 0 4px 14px rgba(111, 107, 255, 0.28);
 }
 .brand-name { font-weight: 650; font-size: 15px; }
 .brand-sub { color: var(--muted); font-size: 12px; margin-top: 1px; letter-spacing: 0.5px; }
@@ -108,7 +106,7 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .lang-badge.en { background: #3b74f0; }
 .lang-badge.ru { background: #e0503f; }
 
-/* ───── контент ───── */
+/* ───── content ───── */
 main { flex: 1; overflow-y: auto; padding: 30px 40px 40px; }
 .page { display: none; max-width: 680px; animation: fade 0.18s ease; }
 .page.active { display: block; }
@@ -141,7 +139,7 @@ header p { margin: 0; color: var(--muted); line-height: 1.5; }
 .hint { color: var(--muted); font-size: 12.5px; margin-top: 3px; line-height: 1.45; }
 .muted { color: var(--muted); }
 
-/* ───── главный переключатель ───── */
+/* ───── main toggle ───── */
 .hero {
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
   padding: 20px 22px; border-radius: var(--radius); margin-bottom: 14px;
@@ -162,7 +160,7 @@ header p { margin: 0; color: var(--muted); line-height: 1.5; }
 .stat-num { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .stat-label { color: var(--muted); font-size: 12px; margin-top: 2px; }
 
-/* ───── переключатель ───── */
+/* ───── toggle ───── */
 .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; cursor: pointer; }
 .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
 .switch span {
@@ -185,7 +183,7 @@ header p { margin: 0; color: var(--muted); line-height: 1.5; }
 .switch.big input:checked + span::after { transform: translateX(22px); }
 .hero .switch span { background: rgba(255, 255, 255, 0.25); }
 
-/* ───── формы ───── */
+/* ───── forms ───── */
 select, input[type="text"] {
   font: inherit; color: var(--text);
   background: var(--bg); border: 1px solid var(--line);
@@ -223,7 +221,7 @@ input[type="text"] { user-select: text; }
   background: var(--accent-soft);
 }
 
-/* ───── проверка слова ───── */
+/* ───── word check ───── */
 .tester { padding: 14px 0; display: flex; flex-direction: column; gap: 12px; }
 .tester input { font-size: 16px; padding: 10px 14px; }
 .test-result { min-height: 46px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -234,11 +232,11 @@ input[type="text"] { user-select: text; }
 .verdict.no { background: rgba(127, 127, 127, 0.14); color: var(--muted); }
 .test-reason { color: var(--muted); font-size: 12.5px; width: 100%; }
 
-/* ───── списки-«чипсы» ───── */
+/* ───── chip lists ───── */
 .add-row { display: flex; gap: 10px; padding: 14px 0; }
 .add-row input { flex: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 16px; }
-.chips:empty::before { content: "Список пуст"; color: var(--muted); font-size: 13px; }
+.chips:empty::before { content: attr(data-empty); color: var(--muted); font-size: 13px; }
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 5px 6px 5px 12px; border-radius: 99px;
@@ -253,15 +251,15 @@ input[type="text"] { user-select: text; }
 .chips.selectable .chip { padding: 5px 12px; cursor: pointer; }
 .chips.selectable .chip:hover { border-color: var(--accent); color: var(--accent); }
 .chips.selectable .chip.added { opacity: 0.4; pointer-events: none; }
-.chips.selectable:empty::before { content: "Нажмите «обновить»"; }
+
 
 .running { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-top: 12px; margin-bottom: 14px; }
 .running-head { display: flex; justify-content: space-between; color: var(--muted); font-size: 12.5px; margin-bottom: 10px; }
 
-/* ───── журнал ───── */
+/* ───── log ───── */
 .log { display: flex; flex-direction: column; gap: 8px; }
 .log:empty::before {
-  content: "Пока пусто. Наберите что-нибудь не в той раскладке, и исправление появится здесь.";
+  content: attr(data-empty);
   color: var(--muted); padding: 30px; text-align: center;
   border: 1px dashed var(--line); border-radius: var(--radius);
 }
@@ -280,11 +278,11 @@ input[type="text"] { user-select: text; }
 .log-item .link { font-size: 12.5px; grid-row: span 2; }
 
 .about { display: flex; gap: 16px; align-items: center; padding: 18px; }
-.about-logo { width: 54px; height: 54px; font-size: 22px; border-radius: 14px; flex-shrink: 0; }
+.about-logo { width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0; }
 
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-thumb { background: rgba(127, 127, 127, 0.3); border-radius: 10px; border: 3px solid var(--bg); }
 
-/* ───── обновления ───── */
+/* ───── updates ───── */
 .update-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .btn:disabled { opacity: 0.55; cursor: default; filter: none; }

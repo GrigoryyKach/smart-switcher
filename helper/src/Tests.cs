@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace SmartSwitcher
 {
-    /// <summary>Проверка детектора на списках слов: правильно набранные не трогаем, набранные не в той раскладке — исправляем.</summary>
+    /// <summary>Detector check on word lists: correctly typed words are left alone, words typed in the wrong layout are corrected.</summary>
     static class SelfTest
     {
         public static int Run(string[] args)
@@ -21,7 +21,7 @@ namespace SmartSwitcher
             o.WriteLine("dict: en={0} ru={1}; sensitivity={2} threshold={3:F2} floor={4:F2}", det.Dict[0].Count, det.Dict[1].Count, sens, det.Threshold, det.Floor);
             o.WriteLine("calibration: " + det.CalibrationInfo());
 
-            // коллизии словарей: слово одного языка, которое в другой раскладке тоже словарное
+            // dictionary collisions: a word of one language that is also a dictionary word in the other layout
             var coll = new List<string>();
             for (int L = 0; L < 2; L++)
                 foreach (var w in det.Dict[L])
@@ -31,14 +31,14 @@ namespace SmartSwitcher
                     bool v; string alt = Detector.Clean(Layouts.Text(s, 1 - L), 1 - L, out v);
                     if (v && det.Dict[1 - L].Contains(alt)) coll.Add(w + "↔" + alt);
                 }
-            o.WriteLine("коллизии словарей ({0}): {1}", coll.Count, string.Join(" ", coll.Take(60)));
+            o.WriteLine("dictionary collisions ({0}): {1}", coll.Count, string.Join(" ", coll.Take(60)));
 
             bool failed = false;
             foreach (bool useDict in new[] { true, false })
             {
                 det.UseDict = useDict;
                 o.WriteLine();
-                o.WriteLine(useDict ? "=== со словарём ===" : "=== только n-граммы (проверка обобщения) ===");
+                o.WriteLine(useDict ? "=== with dictionary ===" : "=== n-grams only (generalization check) ===");
                 for (int L = 0; L < 2; L++)
                 {
                     string file = Path.Combine(dir, (L == 0 ? "en" : "ru") + "_test.txt");
@@ -52,22 +52,22 @@ namespace SmartSwitcher
                         var s = Layouts.StrokesFor(w, L);
                         if (s == null) continue;
                         total++;
-                        var right = det.Analyze(s, L);       // набрано правильно
-                        var wrong = det.Analyze(s, 1 - L);   // набрано не в той раскладке
+                        var right = det.Analyze(s, L);       // typed correctly
+                        var wrong = det.Analyze(s, 1 - L);   // typed in the wrong layout
                         if (right.Convert) { fp++; if (fpList.Count < 40) fpList.Add(w + string.Format("({0:F1}/{1:F1})", right.CurScore, right.AltScore)); }
                         if (!wrong.Convert && w.Length >= 3) { fn++; if (fnList.Count < 40) fnList.Add(w + string.Format("({0:F1}/{1:F1})", wrong.AltScore, wrong.CurScore)); }
                     }
-                    o.WriteLine("[{0}] слов {1}: ложных исправлений {2} ({3:P1}), пропусков {4} ({5:P1})",
+                    o.WriteLine("[{0}] words {1}: false corrections {2} ({3:P1}), misses {4} ({5:P1})",
                         L == 0 ? "EN" : "RU", total, fp, (double)fp / total, fn, (double)fn / total);
-                    if (fpList.Count > 0) o.WriteLine("   ложные: " + string.Join(" ", fpList));
-                    if (fnList.Count > 0) o.WriteLine("   пропуски: " + string.Join(" ", fnList));
+                    if (fpList.Count > 0) o.WriteLine("   false: " + string.Join(" ", fpList));
+                    if (fnList.Count > 0) o.WriteLine("   misses: " + string.Join(" ", fnList));
                     if (useDict && (double)fp / total > 0.01) failed = true;
                 }
             }
 
             det.UseDict = true;
             o.WriteLine();
-            o.WriteLine("Технические слова (в EN не должны исправляться):");
+            o.WriteLine("Technical words (must not be corrected in EN):");
             string tech = "npm git src cfg http https xml json tsx jsx kubectl useState onClick ctrl alt env dev prod localhost github api sql html css cmd exe dll px rgb utf usb wifi bluetooth zip pdf jpg png mp3 xyz qwerty asdf lol omg btw imho idk ok thx pls";
             var bad = new List<string>();
             foreach (var w in tech.Split(' '))
@@ -75,14 +75,14 @@ namespace SmartSwitcher
                 var s = Layouts.StrokesFor(w, 0);
                 if (s != null && det.Analyze(s, 0).Convert) bad.Add(w + "→" + Layouts.Text(s, 1));
             }
-            o.WriteLine(bad.Count == 0 ? "   все ок" : "   исправились бы: " + string.Join(" ", bad));
+            o.WriteLine(bad.Count == 0 ? "   all ok" : "   would be corrected: " + string.Join(" ", bad));
             return failed ? 1 : 0;
         }
     }
 
     /// <summary>
-    /// Сквозной тест: открывает своё окно с полем ввода, ставит настоящий хук и «печатает» через SendInput.
-    /// Печатает только пока наше окно на переднем плане — иначе останавливается.
+    /// End-to-end test: opens its own window with an input field, installs the real hook and "types" through SendInput.
+    /// Types only while our window is in the foreground; otherwise it stops.
     /// </summary>
     static class E2E
     {
@@ -92,26 +92,26 @@ namespace SmartSwitcher
         {
             var o = new StreamWriter(Console.OpenStandardOutput(), new UTF8Encoding(false)) { AutoFlush = true };
             IntPtr enHkl = Layouts.FindHkl(Layouts.EN), ruHkl = Layouts.FindHkl(Layouts.RU);
-            if (enHkl == IntPtr.Zero || ruHkl == IntPtr.Zero) { o.WriteLine("SKIP: в системе нет раскладок EN и RU одновременно"); return 3; }
+            if (enHkl == IntPtr.Zero || ruHkl == IntPtr.Zero) { o.WriteLine("SKIP: the system does not have both EN and RU layouts"); return 3; }
 
-            // Клавиши описываются символами, как они выглядят в EN-раскладке. '|' — Pause, '^' — CapsLock.
+            // Keys are described by characters as they look in the EN layout. '|' is Pause, '^' is CapsLock.
             var cases = new List<Case> {
-                new Case { Name = "привет из EN", Layout = "en", Keys = "ghbdtn ", Expected = "привет " },
-                new Case { Name = "правильное RU не трогаем", Layout = "ru", Keys = "ghbdtn ", Expected = "привет " },
-                new Case { Name = "hello из RU", Layout = "ru", Keys = "hello ", Expected = "hello " },
-                new Case { Name = "английский не трогаем", Layout = "en", Keys = "hello world ", Expected = "hello world " },
-                new Case { Name = "фраза", Layout = "en", Keys = "ghbdtn rfr ltkf ", Expected = "привет как дела " },
-                new Case { Name = "я тебя люблю", Layout = "en", Keys = "z nt,z k.,k. ", Expected = "я тебя люблю " },
-                new Case { Name = "заглавная", Layout = "en", Keys = "Ghbdtn ", Expected = "Привет " },
-                new Case { Name = "капсом", Layout = "en", Keys = "GHBDTN ", Expected = "ПРИВЕТ " },
+                new Case { Name = "Russian word from EN", Layout = "en", Keys = "ghbdtn ", Expected = "привет " },
+                new Case { Name = "correct RU is left alone", Layout = "ru", Keys = "ghbdtn ", Expected = "привет " },
+                new Case { Name = "English word from RU", Layout = "ru", Keys = "hello ", Expected = "hello " },
+                new Case { Name = "English is left alone", Layout = "en", Keys = "hello world ", Expected = "hello world " },
+                new Case { Name = "phrase", Layout = "en", Keys = "ghbdtn rfr ltkf ", Expected = "привет как дела " },
+                new Case { Name = "short words phrase", Layout = "en", Keys = "z nt,z k.,k. ", Expected = "я тебя люблю " },
+                new Case { Name = "capitalized", Layout = "en", Keys = "Ghbdtn ", Expected = "Привет " },
+                new Case { Name = "all caps", Layout = "en", Keys = "GHBDTN ", Expected = "ПРИВЕТ " },
                 new Case { Name = "CapsLock", Layout = "en", Keys = "^ghbdtn^ ", Expected = "ПРИВЕТ " },
-                new Case { Name = "отмена Pause", Layout = "en", Keys = "ghbdtn |", Expected = "ghbdtn " },
-                new Case { Name = "ручное исправление слова", Layout = "en", Keys = "fsdf|", Expected = "аыва" },
-                new Case { Name = "ручное исправление после пробела", Layout = "ru", Keys = "ghbdtn |", Expected = "ghbdtn " },
-                new Case { Name = "Enter как триггер", Layout = "en", Keys = "ghbdtn\n", Expected = "привет\r\n" },
-                new Case { Name = "запятая RU", Layout = "en", Keys = "ghbdtn? rfr ", Expected = "привет, как " },
-                new Case { Name = "бэкспейс внутри слова", Layout = "en", Keys = "ghbdtnn\b ", Expected = "привет " },
-                new Case { Name = "быстрый набор", Layout = "en", Keys = "!ghbdtn vbh ", Expected = "привет мир " },
+                new Case { Name = "Pause undo", Layout = "en", Keys = "ghbdtn |", Expected = "ghbdtn " },
+                new Case { Name = "manual word fix", Layout = "en", Keys = "fsdf|", Expected = "аыва" },
+                new Case { Name = "manual fix after space", Layout = "ru", Keys = "ghbdtn |", Expected = "ghbdtn " },
+                new Case { Name = "Enter as trigger", Layout = "en", Keys = "ghbdtn\n", Expected = "привет\r\n" },
+                new Case { Name = "RU comma", Layout = "en", Keys = "ghbdtn? rfr ", Expected = "привет, как " },
+                new Case { Name = "backspace inside a word", Layout = "en", Keys = "ghbdtnn\b ", Expected = "привет " },
+                new Case { Name = "fast typing", Layout = "en", Keys = "!ghbdtn vbh ", Expected = "привет мир " },
             };
 
             var form = new Form { Text = "SmartSwitcher E2E", Width = 600, Height = 200, TopMost = true, StartPosition = FormStartPosition.CenterScreen };
@@ -125,7 +125,7 @@ namespace SmartSwitcher
             form.Shown += delegate
             {
                 engine.Install();
-                // трюк, чтобы Windows разрешила вывести окно на передний план
+                // trick so that Windows allows bringing the window to the foreground
                 Native.Send(new List<Native.INPUT> { Native.Key(0x12, false, Engine.TAG), Native.Key(0x12, true, Engine.TAG) });
                 Native.SetForegroundWindow(form.Handle);
                 form.Activate(); box.Focus();
@@ -135,7 +135,7 @@ namespace SmartSwitcher
                     Thread.Sleep(600);
                     foreach (var c in cases)
                     {
-                        if (Native.GetForegroundWindow() != form.Handle) { o.WriteLine("СТОП: окно теста потеряло фокус"); failures++; break; }
+                        if (Native.GetForegroundWindow() != form.Handle) { o.WriteLine("STOP: the test window lost focus"); failures++; break; }
                         form.Invoke(new Action(() =>
                         {
                             box.Clear();
@@ -154,7 +154,7 @@ namespace SmartSwitcher
                         string got = (string)form.Invoke(new Func<string>(() => box.Text));
                         bool ok = got == c.Expected;
                         if (!ok) failures++;
-                        o.WriteLine("{0} {1}: ожидали «{2}», получили «{3}»", ok ? "OK  " : "FAIL", c.Name,
+                        o.WriteLine("{0} {1}: expected [{2}], got [{3}]", ok ? "OK  " : "FAIL", c.Name,
                             c.Expected.Replace("\r\n", "⏎"), got.Replace("\r\n", "⏎"));
                     }
                     form.Invoke(new Action(() => { engine.Uninstall(); form.Close(); }));
@@ -163,7 +163,7 @@ namespace SmartSwitcher
                 worker.Start();
             };
             Application.Run(form);
-            o.WriteLine(failures == 0 ? "ВСЕ ТЕСТЫ ПРОЙДЕНЫ" : "ПРОВАЛЕНО: " + failures);
+            o.WriteLine(failures == 0 ? "ALL TESTS PASSED" : "FAILED: " + failures);
             return failures == 0 ? 0 : 1;
         }
 

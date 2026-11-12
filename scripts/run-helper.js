@@ -1,4 +1,4 @@
-// Запускает хелпер в тестовом режиме и выводит его stdout (у winexe нет своей консоли).
+// Runs the helper in test mode and prints its stdout (a winexe has no console of its own).
 const { spawn } = require('child_process');
 const path = require('path');
 
