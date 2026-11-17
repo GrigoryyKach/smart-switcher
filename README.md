@@ -64,3 +64,7 @@ The result is `dist/SmartSwitcher-win32-x64/SmartSwitcher.exe`. The folder can b
 ```bash
 npm run selftest
 ```
+
+## Support
+
+If you find Smart Switcher useful, you can support its development: https://donatello.to/MicsGame

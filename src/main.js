@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, nativeTheme } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, nativeTheme, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
@@ -13,6 +13,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 const APP_NAME = 'Smart Switcher';
+const SUPPORT_URL = 'https://donatello.to/MicsGame';
 app.setName(APP_NAME);
 app.setAppUserModelId('local.smart-switcher');
 
@@ -256,6 +257,7 @@ function updateTray() {
       ? [{ label: tr('trayUpdate', updater.getState().version), click: () => { if (updater.apply()) { quitting = true; app.quit(); } } }]
       : []),
     { type: 'separator' },
+    { label: tr('traySupport'), click: () => shell.openExternal(SUPPORT_URL) },
     { label: tr('trayQuit'), click: () => { quitting = true; app.quit(); } },
   ]));
 }
@@ -369,6 +371,7 @@ ipcMain.handle('state:get', () => ({
   version: app.getVersion(),
   update: CAPTURE ? { status: 'latest', current: app.getVersion(), version: null, url: null } : updater.getState(),
 }));
+ipcMain.handle('support:open', () => { shell.openExternal(SUPPORT_URL); });
 ipcMain.handle('update:check', () => updater.check(onUpdate));
 ipcMain.handle('update:apply', () => {
   if (updater.apply()) { quitting = true; app.quit(); }

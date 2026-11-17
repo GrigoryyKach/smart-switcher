@@ -274,6 +274,7 @@ function renderUpdate(u) {
 
 $('#updateCheck').addEventListener('click', async () => renderUpdate(await window.api.checkUpdate()));
 $('#updateApply').addEventListener('click', () => window.api.applyUpdate());
+$('#supportOpen').addEventListener('click', () => window.api.openSupport());
 
 window.api.onEvent(msg => {
   switch (msg.type) {

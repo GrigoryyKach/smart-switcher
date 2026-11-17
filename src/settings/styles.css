@@ -286,3 +286,10 @@ input[type="text"] { user-select: text; }
 /* ───── updates ───── */
 .update-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .btn:disabled { opacity: 0.55; cursor: default; filter: none; }
+
+/* ───── support ───── */
+.support { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 18px; }
+.support-body { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.support-body .hint { margin-top: 0; font-size: 13.5px; }
+.qr { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; color: var(--muted); font-size: 12px; }
+.qr img { background: #fff; padding: 6px; border-radius: 12px; image-rendering: pixelated; display: block; }
