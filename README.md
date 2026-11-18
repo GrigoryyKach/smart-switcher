@@ -4,6 +4,10 @@ A local EN ⇄ RU keyboard layout auto-switcher for Windows, similar to Punto Sw
 Type `ghbdtn` and press space: you get `привет`, and the layout switches to Russian by itself.
 It works fully offline.
 
+## Platforms
+
+Windows only (Windows 10/11 x64). There is no Linux version, because the app depends on Windows-specific APIs. In the NIMVORO launcher on Linux it is not shown (`"platforms": ["windows"]` in `nimvoro.json`).
+
 ## Languages
 
 The interface is available in English (default), Russian and Ukrainian, including the tray menu and notifications.

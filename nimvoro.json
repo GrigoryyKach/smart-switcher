@@ -39,8 +39,11 @@
   ],
   "exe": "SmartSwitcher.exe",
   "asset": "SmartSwitcher-win-x64.zip",
+  "platforms": [
+    "windows"
+  ],
   "requirements": [
-    "Windows 10/11 x64",
+    "Windows 10/11 x64 (Windows only, no Linux version)",
     "English and Russian keyboard layouts installed"
   ],
   "settingsDir": "%APPDATA%\\Smart Switcher",
@@ -72,7 +75,7 @@
       ],
       "category": "Продуктивность",
       "requirements": [
-        "Windows 10/11 x64",
+        "Windows 10/11 x64 (только Windows, версии для Linux нет)",
         "Английская и русская раскладки в системе"
       ]
     },
@@ -103,7 +106,7 @@
       ],
       "category": "Продуктивність",
       "requirements": [
-        "Windows 10/11 x64",
+        "Windows 10/11 x64 (лише Windows, версії для Linux немає)",
         "Англійська та російська розкладки в системі"
       ]
     }
