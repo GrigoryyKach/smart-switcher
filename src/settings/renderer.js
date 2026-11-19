@@ -3,6 +3,18 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 let state = { config: {}, status: {}, log: [] };
 
+// ───── line icons: 24 box, 1.5 px stroke that does not scale (vector-effect in styles.css) ─────
+const ICONS = {
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+};
+function icon(name) {
+  const e = document.createElement('span');
+  e.className = 'ico';
+  e.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + '</svg>';
+  return e;
+}
+
 // ───── i18n ─────
 const L = () => state.config.language || 'en';
 const tr = (key, ...args) => I18N.t(L(), key, ...args);
@@ -42,7 +54,7 @@ $$('[data-key]').forEach(el => {
   el.addEventListener(evt, () => {
     let v = el.type === 'checkbox' ? el.checked : el.value;
     if (el.type === 'range' || el.dataset.type === 'number') v = Number(v);
-    if (key === 'sensitivity') $('#sensValue').textContent = v;
+    if (key === 'sensitivity') { $('#sensValue').textContent = v; setFill(el); }
     save({ [key]: v });
     if (key === 'sensitivity') runTest();
   });
@@ -60,6 +72,7 @@ function render() {
     else if (document.activeElement !== el) el.value = String(v);
   });
   $('#sensValue').textContent = c.sensitivity;
+  $$('input[type="range"]').forEach(setFill);
 
   $('#hero').classList.toggle('off', !c.enabled);
   $('#heroTitle').textContent = tr(c.enabled ? 'heroOn' : 'heroOff');
@@ -83,6 +96,10 @@ function render() {
   renderStatus();
 }
 
+function setFill(el) {
+  el.style.setProperty('--p', (el.value - el.min) / (el.max - el.min));
+}
+
 function renderChips(sel, items, onRemove, fmt = x => x) {
   const box = $(sel);
   box.innerHTML = '';
@@ -92,7 +109,7 @@ function renderChips(sel, items, onRemove, fmt = x => x) {
     chip.textContent = fmt(it);
     const x = document.createElement('button');
     x.title = tr('remove');
-    x.textContent = '✕';
+    x.appendChild(icon('x'));
     x.onclick = () => onRemove(it);
     chip.appendChild(x);
     box.appendChild(chip);
@@ -189,7 +206,7 @@ async function runTest() {
   if (!r.ok) { out.appendChild(el('span', 'muted', tr('r_' + r.reason))); return; }
 
   const words = el('div', 'test-words');
-  words.append(el('span', '', r.text), el('span', 'arrow', r.convert ? '→' : '·'), el('span', r.convert ? '' : 'muted', r.converted));
+  words.append(el('span', 'keycap word', r.text), icon('arrow'), el('span', 'keycap word' + (r.convert ? '' : ' muted'), r.converted));
   out.append(words, el('span', 'verdict ' + (r.convert ? 'yes' : 'no'), tr(r.convert ? 'willFix' : 'willKeep')));
   const curLang = r.lang === 'en' ? 'EN' : 'RU', altLang = r.lang === 'en' ? 'RU' : 'EN';
   const fmt = v => (v < -5 ? '—' : v.toFixed(2));
@@ -217,7 +234,7 @@ function renderLog() {
 function logItem(e) {
   const item = el('div', 'log-item');
   const words = el('div', 'log-words');
-  words.append(el('span', 'from', short(e.from)), el('span', 'muted', '→'), el('span', '', short(e.to)));
+  words.append(el('span', 'from', short(e.from)), icon('arrow'), el('span', '', short(e.to)));
   const meta = el('div', 'log-meta');
   meta.append(el('span', 'tag ' + e.kind, tr('kind_' + e.kind)));
   if (e.app) meta.append(el('span', '', e.app));
@@ -225,7 +242,7 @@ function logItem(e) {
   if (e.learned) meta.append(el('span', '', tr('learnedMsg', e.learned)));
   item.append(words);
   if (e.kind === 'auto' && e.word) {
-    const btn = el('button', 'link', tr('dontFix'));
+    const btn = el('button', 'btn link', tr('dontFix'));
     btn.title = tr('addToExcluded');
     btn.onclick = () => {
       save({ exceptions: [...(state.config.exceptions || []), e.word] });

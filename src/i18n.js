@@ -43,7 +43,7 @@
     navAbout: 'About',
 
     // general
-    gIntro: 'The app watches your typing and fixes words typed in the wrong layout: <code>ghbdtn</code> → <code>привет</code>.',
+    gIntro: 'The app watches your typing and fixes words typed in the wrong layout: <code>ghbdtn</code> → <code>привет</code>',
     heroOn: 'Auto-switching is on',
     heroOff: 'Auto-switching is paused',
     heroSubOff: 'Keystrokes are not tracked',
@@ -75,7 +75,7 @@
     trigTabHint: 'Better left off in code editors',
 
     // detection
-    dIntro: 'A word is checked against the built-in dictionaries and by how typical its letter combinations are for Russian or English.',
+    dIntro: 'A word is checked against the built-in dictionaries and by how typical its letter combinations are for Russian or English',
     sensitivity: 'Sensitivity',
     sensitivityHint: 'The higher it is, the more boldly words missing from the dictionary are fixed',
     scaleLow: 'Cautious',
@@ -115,7 +115,7 @@
     r_diffSmall: 'the difference is too small to switch confidently',
 
     // hotkeys
-    hIntro: 'When the automation is wrong or does not fire, one key fixes everything.',
+    hIntro: 'When the automation is wrong or does not fire, one key fixes everything',
     hkFix: 'Fix or undo',
     hkFixHint: 'While typing a word it converts it to the other layout. Right after an auto-correction it undoes it. After a space it fixes the last word.',
     hkSel: 'Convert selected text',
@@ -127,7 +127,7 @@
 
     // exceptions
     eIntro: 'Words that are never fixed automatically. Write them the way they are typed, for example <code>ghbdtn</code> if it is your nickname.',
-    addWord: 'Add a word…',
+    addWord: 'Add word',
     add: 'Add',
     listEmpty: 'The list is empty',
     remove: 'Remove',
@@ -137,21 +137,21 @@
     aIntro: 'In these apps auto-switching and hotkeys do not work. Good for games, terminals and password managers.',
     appPlaceholder: 'Process name, for example WindowsTerminal',
     runningNow: 'Apps running now',
-    refresh: 'refresh',
-    pressRefresh: 'Press “refresh”',
+    refresh: 'Refresh',
+    pressRefresh: 'Press Refresh',
     addToExcluded: 'Add to exclusions',
 
     // log
     lIntro: 'Latest corrections of this session. Nothing is saved to disk or sent anywhere.',
     clear: 'Clear',
     logEmpty: 'Nothing yet. Type something in the wrong layout and the correction will show up here.',
-    kind_auto: 'auto',
-    kind_manual: 'manual',
-    kind_undo: 'undo',
-    kind_selection: 'selection',
-    dontFix: 'don’t fix',
-    added: 'added',
-    inExceptions: 'in exceptions',
+    kind_auto: 'Auto',
+    kind_manual: 'Manual',
+    kind_undo: 'Undo',
+    kind_selection: 'Selection',
+    dontFix: 'Don’t fix',
+    added: 'Added',
+    inExceptions: 'In exceptions',
     learnedMsg: '“{0}” added to the exceptions',
 
     // about
@@ -212,7 +212,7 @@
     navLog: 'Журнал',
     navAbout: 'О программе',
 
-    gIntro: 'Программа следит за набором и сама исправляет слова, набранные не в той раскладке: <code>ghbdtn</code> → <code>привет</code>.',
+    gIntro: 'Программа следит за набором и сама исправляет слова, набранные не в той раскладке: <code>ghbdtn</code> → <code>привет</code>',
     heroOn: 'Автопереключение включено',
     heroOff: 'Автопереключение на паузе',
     heroSubOff: 'Нажатия не отслеживаются',
@@ -243,7 +243,7 @@
     trigEnterHint: 'Удобно в чатах: последнее слово исправится перед отправкой',
     trigTabHint: 'В редакторах кода лучше оставить выключенным',
 
-    dIntro: 'Слово проверяется по встроенным словарям и по тому, насколько его буквосочетания типичны для русского или английского языка.',
+    dIntro: 'Слово проверяется по встроенным словарям и по тому, насколько его буквосочетания типичны для русского или английского языка',
     sensitivity: 'Чувствительность',
     sensitivityHint: 'Чем выше, тем смелее исправляются слова, которых нет в словаре',
     scaleLow: 'Осторожно',
@@ -282,7 +282,7 @@
     r_altUnlikely: 'в другой раскладке слово тоже не похоже на настоящее',
     r_diffSmall: 'разница недостаточна для уверенного переключения',
 
-    hIntro: 'Когда автоматика ошиблась или не сработала, всё можно поправить одной клавишей.',
+    hIntro: 'Когда автоматика ошиблась или не сработала, всё можно поправить одной клавишей',
     hkFix: 'Исправить или отменить',
     hkFixHint: 'Если вы набираете слово — переводит его в другую раскладку. Сразу после автоисправления — отменяет его. После пробела — исправляет последнее слово.',
     hkSel: 'Перевести выделенный текст',
@@ -293,7 +293,7 @@
     hkNote: 'На многих ноутбуках нет клавиши Pause. Тогда удобнее выбрать «Shift дважды» или «Ctrl дважды»: быстро нажмите и отпустите клавишу два раза подряд.',
 
     eIntro: 'Слова, которые никогда не исправляются автоматически. Пишите так, как слово набирается: например <code>ghbdtn</code>, если это ваш ник.',
-    addWord: 'Добавить слово…',
+    addWord: 'Добавить слово',
     add: 'Добавить',
     listEmpty: 'Список пуст',
     remove: 'Удалить',
@@ -302,20 +302,20 @@
     aIntro: 'В этих программах автопереключение и горячие клавиши не работают. Подходит для игр, терминалов и менеджеров паролей.',
     appPlaceholder: 'Имя процесса, например WindowsTerminal',
     runningNow: 'Открытые сейчас программы',
-    refresh: 'обновить',
-    pressRefresh: 'Нажмите «обновить»',
+    refresh: 'Обновить',
+    pressRefresh: 'Нажмите «Обновить»',
     addToExcluded: 'Добавить в исключения',
 
     lIntro: 'Последние исправления за этот сеанс. Ничего не сохраняется на диск и никуда не отправляется.',
     clear: 'Очистить',
     logEmpty: 'Пока пусто. Наберите что-нибудь не в той раскладке, и исправление появится здесь.',
-    kind_auto: 'авто',
-    kind_manual: 'вручную',
-    kind_undo: 'отмена',
-    kind_selection: 'выделение',
-    dontFix: 'не исправлять',
-    added: 'добавлено',
-    inExceptions: 'в исключениях',
+    kind_auto: 'Авто',
+    kind_manual: 'Вручную',
+    kind_undo: 'Отмена',
+    kind_selection: 'Выделение',
+    dontFix: 'Не исправлять',
+    added: 'Добавлено',
+    inExceptions: 'В исключениях',
     learnedMsg: '«{0}» добавлено в исключения',
 
     aboutText: 'Локальный автопереключатель раскладки. Нажатия обрабатываются в памяти и никуда не передаются. В сеть программа ходит только за проверкой обновлений, и её можно выключить.',
@@ -375,7 +375,7 @@
     navLog: 'Журнал',
     navAbout: 'Про програму',
 
-    gIntro: 'Програма стежить за набором і сама виправляє слова, набрані не в тій розкладці: <code>ghbdtn</code> → <code>привет</code>.',
+    gIntro: 'Програма стежить за набором і сама виправляє слова, набрані не в тій розкладці: <code>ghbdtn</code> → <code>привет</code>',
     heroOn: 'Автоперемикання увімкнено',
     heroOff: 'Автоперемикання на паузі',
     heroSubOff: 'Натискання не відстежуються',
@@ -406,7 +406,7 @@
     trigEnterHint: 'Зручно в чатах: останнє слово виправиться перед надсиланням',
     trigTabHint: 'У редакторах коду краще залишити вимкненим',
 
-    dIntro: 'Слово перевіряється за вбудованими словниками та за тим, наскільки його поєднання літер типові для російської чи англійської мови.',
+    dIntro: 'Слово перевіряється за вбудованими словниками та за тим, наскільки його поєднання літер типові для російської чи англійської мови',
     sensitivity: 'Чутливість',
     sensitivityHint: 'Чим вище, тим сміливіше виправляються слова, яких немає у словнику',
     scaleLow: 'Обережно',
@@ -445,7 +445,7 @@
     r_altUnlikely: 'в іншій розкладці слово теж не схоже на справжнє',
     r_diffSmall: 'різниця замала для впевненого перемикання',
 
-    hIntro: 'Коли автоматика помилилася або не спрацювала, усе можна поправити однією клавішею.',
+    hIntro: 'Коли автоматика помилилася або не спрацювала, усе можна поправити однією клавішею',
     hkFix: 'Виправити або скасувати',
     hkFixHint: 'Якщо ви набираєте слово — переводить його в іншу розкладку. Одразу після автовиправлення — скасовує його. Після пробілу — виправляє останнє слово.',
     hkSel: 'Перевести виділений текст',
@@ -456,7 +456,7 @@
     hkNote: 'На багатьох ноутбуках немає клавіші Pause. Тоді зручніше обрати «Shift двічі» або «Ctrl двічі»: швидко натисніть і відпустіть клавішу два рази поспіль.',
 
     eIntro: 'Слова, які ніколи не виправляються автоматично. Пишіть так, як слово набирається: наприклад <code>ghbdtn</code>, якщо це ваш нікнейм.',
-    addWord: 'Додати слово…',
+    addWord: 'Додати слово',
     add: 'Додати',
     listEmpty: 'Список порожній',
     remove: 'Видалити',
@@ -465,20 +465,20 @@
     aIntro: 'У цих програмах автоперемикання та гарячі клавіші не працюють. Підходить для ігор, терміналів і менеджерів паролів.',
     appPlaceholder: 'Назва процесу, наприклад WindowsTerminal',
     runningNow: 'Відкриті зараз програми',
-    refresh: 'оновити',
-    pressRefresh: 'Натисніть «оновити»',
+    refresh: 'Оновити',
+    pressRefresh: 'Натисніть «Оновити»',
     addToExcluded: 'Додати до винятків',
 
     lIntro: 'Останні виправлення за цей сеанс. Нічого не зберігається на диск і нікуди не надсилається.',
     clear: 'Очистити',
     logEmpty: 'Поки порожньо. Наберіть щось не в тій розкладці, і виправлення з’явиться тут.',
-    kind_auto: 'авто',
-    kind_manual: 'вручну',
-    kind_undo: 'скасування',
-    kind_selection: 'виділення',
-    dontFix: 'не виправляти',
-    added: 'додано',
-    inExceptions: 'у винятках',
+    kind_auto: 'Авто',
+    kind_manual: 'Вручну',
+    kind_undo: 'Скасування',
+    kind_selection: 'Виділення',
+    dontFix: 'Не виправляти',
+    added: 'Додано',
+    inExceptions: 'У винятках',
     learnedMsg: '«{0}» додано до винятків',
 
     aboutText: 'Локальний автоперемикач розкладки. Натискання обробляються в пам’яті й нікуди не передаються. У мережу програма виходить лише для перевірки оновлень, і це можна вимкнути.',

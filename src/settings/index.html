@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
   <title>Smart Switcher</title>
+  <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,18 +13,18 @@
       <img class="logo" src="../../assets/icon.png" alt="">
       <div>
         <div class="brand-name">Smart Switcher</div>
-        <div class="brand-sub">EN ⇄ RU</div>
+        <div class="brand-sub"><span class="keycap xs">EN</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="keycap xs">RU</span></div>
       </div>
     </div>
 
     <nav>
-      <button class="nav-item active" data-page="general"><span class="ico">◐</span><span data-i18n="navGeneral"></span></button>
-      <button class="nav-item" data-page="detection"><span class="ico">◎</span><span data-i18n="navDetection"></span></button>
-      <button class="nav-item" data-page="hotkeys"><span class="ico">⌨</span><span data-i18n="navHotkeys"></span></button>
-      <button class="nav-item" data-page="exceptions"><span class="ico">✕</span><span data-i18n="navExceptions"></span></button>
-      <button class="nav-item" data-page="apps"><span class="ico">▣</span><span data-i18n="navApps"></span></button>
-      <button class="nav-item" data-page="log"><span class="ico">≡</span><span data-i18n="navLog"></span></button>
-      <button class="nav-item" data-page="about"><span class="ico">i</span><span data-i18n="navAbout"></span></button>
+      <button class="nav-item active" data-page="general"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/></svg></span><span data-i18n="navGeneral"></span></button>
+      <button class="nav-item" data-page="detection"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span><span data-i18n="navDetection"></span></button>
+      <button class="nav-item" data-page="hotkeys"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 13h.01M12 13h.01M16 13h.01M7 16h10"/></svg></span><span data-i18n="navHotkeys"></span></button>
+      <button class="nav-item" data-page="exceptions"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><span data-i18n="navExceptions"></span></button>
+      <button class="nav-item" data-page="apps"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M6 6.5h.01M10 6.5h.01"/></svg></span><span data-i18n="navApps"></span></button>
+      <button class="nav-item" data-page="log"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3M15 12H3M17 18H3"/></svg></span><span data-i18n="navLog"></span></button>
+      <button class="nav-item" data-page="about"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span data-i18n="navAbout"></span></button>
     </nav>
 
     <div class="status" id="status">
@@ -41,21 +42,21 @@
         <p data-i18n-html="gIntro"></p>
       </header>
 
-      <div class="hero" id="hero">
+      <div class="hero card-surface" id="hero">
         <div>
-          <div class="hero-title" id="heroTitle"></div>
+          <div class="hero-title"><span class="dot"></span><span id="heroTitle"></span></div>
           <div class="hero-sub" id="heroSub"></div>
         </div>
-        <label class="switch big"><input type="checkbox" data-key="enabled"><span></span></label>
+        <label class="switch"><input type="checkbox" data-key="enabled"><span></span></label>
       </div>
 
-      <div class="stats">
+      <div class="stats card-surface">
         <div class="stat"><div class="stat-num" id="statConverted">0</div><div class="stat-label" data-i18n="statConverted"></div></div>
         <div class="stat"><div class="stat-num" id="statManual">0</div><div class="stat-label" data-i18n="statManual"></div></div>
         <div class="stat"><div class="stat-num" id="statUndone">0</div><div class="stat-label" data-i18n="statUndone"></div></div>
       </div>
 
-      <div class="card">
+      <div class="card card-surface">
         <div class="row">
           <div><div class="label" data-i18n="autoSwitch"></div><div class="hint" data-i18n="autoSwitchHint"></div></div>
           <label class="switch"><input type="checkbox" data-key="autoSwitch"><span></span></label>
@@ -71,14 +72,14 @@
       </div>
 
       <h2 data-i18n="appearance"></h2>
-      <div class="card">
+      <div class="card card-surface">
         <div class="row">
           <div><div class="label" data-i18n="language"></div><div class="hint" data-i18n="languageHint"></div></div>
-          <select data-key="language" id="langSelect"></select>
+          <select class="select" data-key="language" id="langSelect"></select>
         </div>
         <div class="row">
           <div><div class="label" data-i18n="theme"></div><div class="hint" data-i18n="themeHint"></div></div>
-          <select data-key="theme">
+          <select class="select" data-key="theme">
             <option value="system" data-i18n="themeSystem"></option>
             <option value="light" data-i18n="themeLight"></option>
             <option value="dark" data-i18n="themeDark"></option>
@@ -87,7 +88,7 @@
       </div>
 
       <h2 data-i18n="whenCheck"></h2>
-      <div class="card">
+      <div class="card card-surface">
         <div class="row">
           <div><div class="label" data-i18n="trigSpaceLabel"></div></div>
           <label class="switch"><input type="checkbox" data-key="triggerSpace"><span></span></label>
@@ -110,18 +111,18 @@
         <p data-i18n="dIntro"></p>
       </header>
 
-      <div class="card">
+      <div class="card card-surface">
         <div class="row column">
           <div class="row-head">
             <div><div class="label" data-i18n="sensitivity"></div><div class="hint" data-i18n="sensitivityHint"></div></div>
-            <div class="pill" id="sensValue">6</div>
+            <div class="value num mono" id="sensValue">6</div>
           </div>
           <input type="range" min="1" max="10" step="1" data-key="sensitivity" class="slider">
           <div class="scale"><span data-i18n="scaleLow"></span><span data-i18n="scaleMid"></span><span data-i18n="scaleHigh"></span></div>
         </div>
         <div class="row">
           <div><div class="label" data-i18n="minLen"></div><div class="hint" data-i18n="minLenHint"></div></div>
-          <select data-key="minWordLength" data-type="number">
+          <select class="select" data-key="minWordLength" data-type="number">
             <option value="1" data-i18n="letters1"></option>
             <option value="2" data-i18n="letters2"></option>
             <option value="3" data-i18n="letters3"></option>
@@ -139,13 +140,13 @@
       </div>
 
       <h2 data-i18n="testTitle"></h2>
-      <div class="card">
+      <div class="card card-surface">
         <div class="tester">
-          <input type="text" id="testInput" data-i18n-ph="testPlaceholder" spellcheck="false" autocomplete="off">
+          <input class="input" type="text" id="testInput" data-i18n-ph="testPlaceholder" spellcheck="false" autocomplete="off">
           <div class="test-result" id="testResult"></div>
         </div>
       </div>
-      <div class="actions"><button class="btn ghost" id="resetConfig" data-i18n="resetDetection"></button></div>
+      <div class="actions"><button class="btn" id="resetConfig" data-i18n="resetDetection"></button></div>
     </section>
 
     <!-- HOTKEYS -->
@@ -154,13 +155,13 @@
         <h1 data-i18n="navHotkeys"></h1>
         <p data-i18n="hIntro"></p>
       </header>
-      <div class="card">
+      <div class="card card-surface">
         <div class="row">
           <div>
             <div class="label" data-i18n="hkFix"></div>
             <div class="hint" data-i18n="hkFixHint"></div>
           </div>
-          <select data-key="hotkey">
+          <select class="select" data-key="hotkey">
             <option value="Pause">Pause / Break</option>
             <option value="ScrollLock">Scroll Lock</option>
             <option value="Insert">Insert</option>
@@ -176,7 +177,7 @@
             <div class="label" data-i18n="hkSel"></div>
             <div class="hint" data-i18n="hkSelHint"></div>
           </div>
-          <select data-key="selectionHotkey">
+          <select class="select" data-key="selectionHotkey">
             <option value="Shift+Pause">Shift + Pause</option>
             <option value="Shift+ScrollLock">Shift + Scroll Lock</option>
             <option value="Shift+F9">Shift + F9</option>
@@ -196,10 +197,10 @@
         <h1 data-i18n="navExceptions"></h1>
         <p data-i18n-html="eIntro"></p>
       </header>
-      <div class="card">
+      <div class="card card-surface">
         <form class="add-row" id="excForm">
-          <input type="text" id="excInput" data-i18n-ph="addWord" spellcheck="false" autocomplete="off">
-          <button class="btn" type="submit" data-i18n="add"></button>
+          <input class="input" type="text" id="excInput" data-i18n-ph="addWord" spellcheck="false" autocomplete="off">
+          <button class="btn primary" type="submit" data-i18n="add"></button>
         </form>
         <div class="chips" id="excList"></div>
       </div>
@@ -211,14 +212,14 @@
         <h1 data-i18n="aTitle"></h1>
         <p data-i18n="aIntro"></p>
       </header>
-      <div class="card">
+      <div class="card card-surface">
         <form class="add-row" id="appForm">
-          <input type="text" id="appInput" list="appSuggest" data-i18n-ph="appPlaceholder" spellcheck="false" autocomplete="off">
+          <input class="input" type="text" id="appInput" list="appSuggest" data-i18n-ph="appPlaceholder" spellcheck="false" autocomplete="off">
           <datalist id="appSuggest"></datalist>
-          <button class="btn" type="submit" data-i18n="add"></button>
+          <button class="btn primary" type="submit" data-i18n="add"></button>
         </form>
         <div class="running">
-          <div class="running-head"><span data-i18n="runningNow"></span><button class="link" id="refreshApps" data-i18n="refresh"></button></div>
+          <div class="running-head"><span data-i18n="runningNow"></span><button class="btn link" id="refreshApps" data-i18n="refresh"></button></div>
           <div class="chips selectable" id="runningApps"></div>
         </div>
         <div class="chips" id="appList"></div>
@@ -232,7 +233,7 @@
           <h1 data-i18n="navLog"></h1>
           <p data-i18n="lIntro"></p>
         </div>
-        <button class="btn ghost" id="clearLog" data-i18n="clear"></button>
+        <button class="btn" id="clearLog" data-i18n="clear"></button>
       </header>
       <div class="log" id="logList"></div>
     </section>
@@ -242,7 +243,7 @@
       <header>
         <h1 data-i18n="navAbout"></h1>
       </header>
-      <div class="card about">
+      <div class="card card-surface about">
         <img class="about-logo" src="../../assets/icon.png" alt="">
         <div>
           <div class="label">Smart Switcher <span class="muted" id="version"></span></div>
@@ -250,18 +251,18 @@
         </div>
       </div>
       <h2 data-i18n="supportTitle"></h2>
-      <div class="card support">
+      <div class="card card-surface support">
         <div class="support-body">
           <div class="hint" data-i18n="supportText"></div>
-          <div><button class="btn" id="supportOpen" data-i18n="supportButton"></button></div>
+          <div><button class="btn small" id="supportOpen" data-i18n="supportButton"></button></div>
         </div>
         <div class="qr">
-          <img src="../../assets/support-qr.png" width="132" height="132" alt="">
+          <img src="../../assets/support-qr.png" width="128" height="128" alt="">
           <span data-i18n="supportScan"></span>
         </div>
       </div>
       <h2 data-i18n="updates"></h2>
-      <div class="card">
+      <div class="card card-surface">
         <div class="row">
           <div><div class="label" data-i18n="checkUpdates"></div><div class="hint" data-i18n="checkUpdatesHint"></div></div>
           <label class="switch"><input type="checkbox" data-key="checkUpdates"><span></span></label>
@@ -269,17 +270,17 @@
         <div class="row">
           <div><div class="label" id="updateTitle"></div><div class="hint" id="updateHint"></div></div>
           <div class="update-actions">
-            <button class="btn ghost" id="updateCheck" data-i18n="check"></button>
-            <button class="btn" id="updateApply" data-i18n="update" hidden></button>
+            <button class="btn small" id="updateCheck" data-i18n="check"></button>
+            <button class="btn small primary" id="updateApply" data-i18n="update" hidden></button>
           </div>
         </div>
       </div>
-      <div class="card">
+      <div class="card card-surface">
         <div class="row"><div class="label" data-i18n="dictionary"></div><div class="muted" id="dictInfo">—</div></div>
         <div class="row"><div class="label" data-i18n="sysLayouts"></div><div class="muted" id="layoutInfo">—</div></div>
       </div>
       <div class="note" data-i18n="adminNote"></div>
-      <div class="actions"><button class="btn ghost" id="resetStats" data-i18n="resetStats"></button></div>
+      <div class="actions"><button class="btn" id="resetStats" data-i18n="resetStats"></button></div>
     </section>
   </main>
 

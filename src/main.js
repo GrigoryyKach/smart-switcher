@@ -284,7 +284,7 @@ function openSettings(page) {
     icon: icons && icons.app,
     title: tr('appName'),
     autoHideMenuBar: true,
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#14161b' : '#f4f5f8',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#141415' : '#fafafa',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
