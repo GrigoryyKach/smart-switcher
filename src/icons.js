@@ -14,9 +14,9 @@ function draw() {
     g.closePath();
   };
   const variants = {
-    en: { text: 'EN', from: '#4f8cff', to: '#2a5fd8' },
-    ru: { text: 'RU', from: '#ff6a55', to: '#d63c2e' },
-    other: { text: '••', from: '#8b93a1', to: '#5f6673' },
+    en: { text: 'EN', color: '#5b78ff' },
+    ru: { text: 'RU', color: '#ec5b45' },
+    other: { text: '••', color: '#9a9aa0' },
   };
   const out = {};
   for (const [key, v] of Object.entries(variants)) {
@@ -27,19 +27,17 @@ function draw() {
         const c = document.createElement('canvas');
         c.width = c.height = s;
         const g = c.getContext('2d');
-        const grad = g.createLinearGradient(0, 0, 0, s);
-        grad.addColorStop(0, off ? '#9aa1ad' : v.from);
-        grad.addColorStop(1, off ? '#6b7280' : v.to);
-        g.fillStyle = grad;
-        rr(g, 0.5, 0.5, s - 1, s - 1, s * 0.24);
+        // Flat tile of the suite icons: solid graphite, no gradient; the layout code is drawn in the accent.
+        g.fillStyle = '#19191b';
+        rr(g, 0, 0, s, s, s * 0.22);
         g.fill();
-        g.fillStyle = off ? 'rgba(255,255,255,0.75)' : '#fff';
+        g.fillStyle = off ? '#6b6b72' : v.color;
         g.font = `800 ${Math.round(s * (v.text.length > 1 && key !== 'other' ? 0.5 : 0.42))}px "Segoe UI", Arial, sans-serif`;
         g.textAlign = 'center';
         g.textBaseline = 'middle';
         g.fillText(v.text, s / 2, s / 2 + s * 0.04);
         if (off) {
-          g.strokeStyle = 'rgba(255,255,255,0.9)';
+          g.strokeStyle = '#ededed';
           g.lineWidth = Math.max(1.2, s / 14);
           g.beginPath();
           g.moveTo(s * 0.2, s * 0.8);
