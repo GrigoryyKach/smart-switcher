@@ -273,24 +273,48 @@ $('#resetConfig').addEventListener('click', async () => {
   runTest();
 });
 
+const UP_ERRORS = {
+  Download: 'upErrDownload', BadDigest: 'upErrDigest', NoDigest: 'upErrNoDigest', NoAsset: 'upErrPackage',
+  BadPackage: 'upErrPackage', Extract: 'upErrPackage', SwapFailed: 'upErrInstall', Restart: 'upErrRestart',
+};
+const UP_PHASES = { downloading: 'upDownloading', verifying: 'upVerifying', installing: 'upInstalling', restarting: 'upRestarting' };
+const mb = n => (n / 1048576).toFixed(1);
+
 function renderUpdate(u) {
   state.update = u;
   if (!u) return;
-  const title = {
+  const p = u.progress;
+  const working = u.status === 'updating' && p;
+  const failedUpdate = u.status === 'failed-update';
+  let title = {
     idle: tr('upIdle', u.current),
     checking: tr('upChecking'),
     latest: tr('upLatest', u.current),
     available: tr('upAvailable', u.version),
     failed: tr('upFailed'),
   }[u.status] || '';
+  let hint = u.status === 'available' ? tr('upAvailableHint2', u.current) : '';
+  if (working) title = tr(UP_PHASES[p.phase] || 'upDownloading');
+  if (failedUpdate) { title = tr(UP_ERRORS[p && p.error] || 'upErrDownload'); hint = ''; }
   $('#updateTitle').textContent = title;
-  $('#updateHint').textContent = u.status === 'available' ? tr('upAvailableHint', u.current) : '';
+  $('#updateHint').textContent = working ? tr('upAvailable', u.version) : hint;
   $('#updateApply').hidden = u.status !== 'available';
+  $('#updateRetry').hidden = !failedUpdate;
+  $('#updateManual').hidden = !failedUpdate;
+  $('#updateCheck').hidden = !!working || failedUpdate;
   $('#updateCheck').disabled = u.status === 'checking';
+  $('#updateProgress').hidden = !working || p.phase !== 'downloading';
+  if (working && p.phase === 'downloading') {
+    const frac = p.total ? Math.min(1, p.done / p.total) : 0;
+    $('#upFill').style.width = `${Math.round(frac * 100)}%`;
+    $('#upSize').textContent = p.total ? `${mb(p.done)} / ${mb(p.total)} MB` : '';
+  }
 }
 
 $('#updateCheck').addEventListener('click', async () => renderUpdate(await window.api.checkUpdate()));
 $('#updateApply').addEventListener('click', () => window.api.applyUpdate());
+$('#updateRetry').addEventListener('click', () => window.api.applyUpdate());
+$('#updateManual').addEventListener('click', () => window.api.openRelease());
 $('#supportOpen').addEventListener('click', () => window.api.openSupport());
 
 window.api.onEvent(msg => {

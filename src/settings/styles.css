@@ -200,6 +200,10 @@ header p { color: var(--text-2); line-height: 24px; }
 
 /* ───── updates ───── */
 .update-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.update-progress { display: flex; align-items: center; gap: 16px; }
+.up-bar { flex: 1; height: 4px; border-radius: 2px; background: var(--raised-2); overflow: hidden; }
+.up-fill { height: 100%; width: 0; background: var(--accent); transition: width .12s linear; }
+.up-size { min-width: 112px; text-align: right; font-family: var(--mono); font-size: var(--fs-meta); line-height: 16px; color: var(--text-2); }
 
 /* ───── support ───── */
 .support { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px; }

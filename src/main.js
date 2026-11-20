@@ -7,6 +7,8 @@ const { renderIcons } = require('./icons');
 const updater = require('./updater');
 const I18N = require('./i18n');
 
+updater.startup(); // after a self-update: wait for the old process, delete *.old leftovers
+
 if (!app.requestSingleInstanceLock()) {
   app.quit();
   process.exit(0);
@@ -254,7 +256,7 @@ function updateTray() {
     { label: tr('traySettings'), click: () => openSettings() },
     { label: tr('trayLog'), click: () => openSettings('log') },
     ...(updater.getState().status === 'available'
-      ? [{ label: tr('trayUpdate', updater.getState().version), click: () => { if (updater.apply()) { quitting = true; app.quit(); } } }]
+      ? [{ label: tr('trayUpdate', updater.getState().version), click: () => applyUpdate() }]
       : []),
     { type: 'separator' },
     { label: tr('traySupport'), click: () => shell.openExternal(SUPPORT_URL) },
@@ -373,9 +375,8 @@ ipcMain.handle('state:get', () => ({
 }));
 ipcMain.handle('support:open', () => { shell.openExternal(SUPPORT_URL); });
 ipcMain.handle('update:check', () => updater.check(onUpdate));
-ipcMain.handle('update:apply', () => {
-  if (updater.apply()) { quitting = true; app.quit(); }
-});
+ipcMain.handle('update:page', () => { updater.openPage(); });
+ipcMain.handle('update:apply', () => { applyUpdate(); });
 ipcMain.handle('config:set', (_e, patch) => setConfig(patch || {}));
 ipcMain.handle('config:reset', () => {
   const { stats, exceptions, excludedApps, language, theme } = config;
@@ -402,10 +403,26 @@ ipcMain.handle('analyze', async (_e, text) => request('analyze', { text: String(
 
 function onUpdate(u) {
   broadcast({ type: 'update', update: u });
+  if (u.status === 'failed-update' && !helper) { quitting = false; startHelper(); } // the swap failed: bring the keyboard helper back
   if (u.status === 'available') {
     updateTray();
     if (tray) tray.displayBalloon?.({ title: 'Smart Switcher', content: tr('balloonUpdate', u.version) });
   }
+}
+
+function applyUpdate() {
+  const mode = updater.apply({
+    onChange: onUpdate,
+    beforeSwap: () => {
+      // the helper exe is part of the package: stop it (without auto-restart) so its files can be replaced
+      quitting = true;
+      send({ type: 'quit' });
+      try { helper && helper.kill(); } catch {}
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 400);
+    },
+    restart: () => { quitting = true; try { saveConfig(); } catch {} try { tray && tray.destroy(); } catch {} app.quit(); }, // normal quit path: before-quit runs, no ghost tray icon
+  });
+  if (mode === 'launcher') { quitting = true; app.quit(); }
 }
 
 // ───────────────────────── lifecycle ─────────────────────────
@@ -425,7 +442,12 @@ app.whenReady().then(async () => {
   tray.on('click', () => openSettings());
   updateTray();
   startHelper();
-  if (config.checkUpdates) updater.check(onUpdate);
+  if (config.checkUpdates || process.env.SMART_SWITCHER_AUTO_UPDATE) {
+    updater.check(onUpdate).then(u => {
+      // test hook: start the self-update right after the check finds a newer version
+      if (process.env.SMART_SWITCHER_AUTO_UPDATE && u.status === 'available') applyUpdate();
+    });
+  }
   const firstRun = !fs.existsSync(configPath());
   saveConfig(); // persists the resolved language and theme
   if (firstRun || process.env.SS_CAPTURE_DIR) openSettings(); // first run: show the settings

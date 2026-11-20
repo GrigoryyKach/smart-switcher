@@ -272,7 +272,13 @@
           <div class="update-actions">
             <button class="btn small" id="updateCheck" data-i18n="check"></button>
             <button class="btn small primary" id="updateApply" data-i18n="update" hidden></button>
+            <button class="btn small primary" id="updateRetry" data-i18n="tryAgain" hidden></button>
+            <button class="btn small" id="updateManual" data-i18n="downloadManually" hidden></button>
           </div>
+        </div>
+        <div class="row update-progress" id="updateProgress" hidden>
+          <div class="up-bar"><div class="up-fill" id="upFill"></div></div>
+          <div class="up-size" id="upSize"></div>
         </div>
       </div>
       <div class="card card-surface">

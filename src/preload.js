@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('api', {
   analyze: text => ipcRenderer.invoke('analyze', text),
   checkUpdate: () => ipcRenderer.invoke('update:check'),
   applyUpdate: () => ipcRenderer.invoke('update:apply'),
+  openRelease: () => ipcRenderer.invoke('update:page'),
   openSupport: () => ipcRenderer.invoke('support:open'),
   onEvent: cb => ipcRenderer.on('event', (_e, msg) => cb(msg)),
 });

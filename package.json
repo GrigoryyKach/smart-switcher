@@ -1,12 +1,13 @@
 {
   "name": "smart-switcher",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Local EN/RU keyboard layout auto-switcher for Windows",
   "main": "src/main.js",
   "private": true,
   "scripts": {
     "build:helper": "node scripts/build-helper.js",
     "start": "node scripts/build-helper.js && electron .",
+    "test:update": "node scripts/selfupdate-test.js",
     "selftest": "node scripts/build-helper.js && node scripts/run-helper.js --selftest helper/test",
     "e2e": "node scripts/build-helper.js && node scripts/run-helper.js --e2e",
     "package": "node scripts/package.js"

@@ -69,6 +69,12 @@ The result is `dist/SmartSwitcher-win32-x64/SmartSwitcher.exe`. The folder can b
 npm run selftest
 ```
 
+## Updates
+
+With the NIMVORO launcher installed, "Update" hands over to the launcher. Without it, the app updates itself: it downloads `SmartSwitcher-win-x64.zip` from the latest GitHub release, checks the SHA-256 against the release asset's `digest` (no digest, no install), extracts to `.update-staging`, swaps the files (rolling back on failure; `app.asar` is locked while the app runs, so a small helper swaps after the app exits) and restarts. Leftover `*.old` files are removed on the next start. If the app folder is not writable, the release page opens instead. Design: `tasks/selfupdate-design.md` in the NIMVORO workspace.
+
+Test overrides: `SMART_SWITCHER_UPDATE_API` (release JSON URL), `SMART_SWITCHER_AUTO_UPDATE=1`, `NIMVORO_LAUNCHER_JSON`. Run `npm run test:update` for the unit tests.
+
 ## Support
 
 If you find Smart Switcher useful, you can support its development: https://donatello.to/MicsGame
